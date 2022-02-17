@@ -1,0 +1,11 @@
+{
+    \"Name\" : \"FolderAsProject\",
+    \"Version\" : \"0.0.1\",
+    \"CompatVersion\" : \"0.0.1\",
+    \"Vendor\" : \"1BADragon\",
+    \"Copyright\" : \"(C) 1BADragon\",
+    \"License\" : \"Put short license information here\",
+    \"Description\" : \"Put a short description of your plugin here\",
+    \"Url\" : \"https://github.com/1BADragon/OpenFolder\",
+    $$dependencyList
+}
