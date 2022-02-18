@@ -23,14 +23,14 @@
 **
 ****************************************************************************/
 
-#include "genericprojectplugin.h"
+#include "folderprojectplugin.h"
 
-#include "genericbuildconfiguration.h"
-#include "genericprojectwizard.h"
-#include "genericprojectconstants.h"
-#include "genericprojectfileseditor.h"
-#include "genericmakestep.h"
-#include "genericproject.h"
+#include "folderbuildconfiguration.h"
+#include "folderprojectwizard.h"
+#include "folderprojectconstants.h"
+#include "folderprojectfileseditor.h"
+#include "foldermakestep.h"
+#include "folderproject.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -55,58 +55,58 @@ using namespace ProjectExplorer;
 using namespace Utils;
 namespace PEC = ProjectExplorer::Constants;
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class GenericProjectPluginPrivate : public QObject
+class FolderProjectPluginPrivate : public QObject
 {
 public:
-    GenericProjectPluginPrivate();
+    FolderProjectPluginPrivate();
 
-    ProjectFilesFactory projectFilesFactory;
-    GenericMakeStepFactory makeStepFactory;
-    GenericBuildConfigurationFactory buildConfigFactory;
+    FolderFilesFactory projectFilesFactory;
+    FolderMakeStepFactory makeStepFactory;
+    FolderBuildConfigurationFactory buildConfigFactory;
 
-    QAction editFilesAction{GenericProjectPlugin::tr("Edit Files..."), nullptr};
+    QAction editFilesAction{FolderProjectPlugin::tr("Edit Files..."), nullptr};
 };
 
-GenericProjectPlugin::~GenericProjectPlugin()
+FolderProjectPlugin::~FolderProjectPlugin()
 {
     delete d;
 }
 
-bool GenericProjectPlugin::initialize(const QStringList &, QString *)
+bool FolderProjectPlugin::initialize(const QStringList &, QString *)
 {
-    d = new GenericProjectPluginPrivate;
+    d = new FolderProjectPluginPrivate;
     return true;
 }
 
-GenericProjectPluginPrivate::GenericProjectPluginPrivate()
+FolderProjectPluginPrivate::FolderProjectPluginPrivate()
 {
-    ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
+    ProjectManager::registerProjectType<FolderProject>(Constants::FOLDERMIMETYPE);
 
-    IWizardFactory::registerFactoryCreator([] { return QList<IWizardFactory *>{new GenericProjectWizard}; });
+    IWizardFactory::registerFactoryCreator([] { return QList<IWizardFactory *>{new FolderProjectWizard}; });
 
     ActionContainer *mproject = ActionManager::actionContainer(PEC::M_PROJECTCONTEXT);
 
     Command *command = ActionManager::registerAction(&editFilesAction,
-        "GenericProjectManager.EditFiles", Context(Constants::GENERICPROJECT_ID));
+        "GenericProjectManager.EditFiles", Context(Constants::FOLDERPROJECT_ID));
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, PEC::G_PROJECT_FILES);
 
     connect(&editFilesAction, &QAction::triggered, this, [] {
-        if (auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject()))
+        if (auto genericProject = qobject_cast<FolderProject *>(ProjectTree::currentProject()))
             genericProject->editFilesTriggered();
     });
 
-    const auto removeDirAction = new QAction(GenericProjectPlugin::tr("Remove Directory"), this);
+    const auto removeDirAction = new QAction(FolderProjectPlugin::tr("Remove Directory"), this);
     Command * const cmd = ActionManager::registerAction(removeDirAction, "GenericProject.RemoveDir",
                                                         Context(PEC::C_PROJECT_TREE));
     ActionManager::actionContainer(PEC::M_FOLDERCONTEXT)->addAction(cmd, PEC::G_FOLDER_OTHER);
     connect(removeDirAction, &QAction::triggered, this, [] {
         const auto folderNode = ProjectTree::currentNode()->asFolderNode();
         QTC_ASSERT(folderNode, return);
-        const auto project = qobject_cast<GenericProject *>(folderNode->getProject());
+        const auto project = qobject_cast<FolderProject *>(folderNode->getProject());
         QTC_ASSERT(project, return);
         const FilePaths filesToRemove = transform(
                     folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),

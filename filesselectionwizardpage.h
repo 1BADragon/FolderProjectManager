@@ -31,17 +31,17 @@
 
 namespace ProjectExplorer { class SelectableFilesWidget; }
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class GenericProjectWizardDialog;
+class FolderProjectWizardDialog;
 
 class FilesSelectionWizardPage : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent = nullptr);
+    FilesSelectionWizardPage(FolderProjectWizardDialog *genericProjectWizard, QWidget *parent = nullptr);
     bool isComplete() const override;
     void initializePage() override;
     void cleanupPage() override;
@@ -49,7 +49,7 @@ public:
     Utils::FilePaths selectedPaths() const;
 
 private:
-    GenericProjectWizardDialog *m_genericProjectWizardDialog;
+    FolderProjectWizardDialog *m_genericProjectWizardDialog;
     ProjectExplorer::SelectableFilesWidget *m_filesWidget;
 };
 

@@ -27,15 +27,15 @@
 
 #include <projectexplorer/project.h>
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class GenericProject : public ProjectExplorer::Project
+class FolderProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
-    explicit GenericProject(const Utils::FilePath &filename);
+    explicit FolderProject(const Utils::FilePath &filename);
 
     void editFilesTriggered();
     void removeFilesTriggered(const Utils::FilePaths &filesToRemove);

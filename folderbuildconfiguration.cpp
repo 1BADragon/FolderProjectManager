@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "genericbuildconfiguration.h"
+#include "folderbuildconfiguration.h"
 
-#include "genericmakestep.h"
-#include "genericproject.h"
-#include "genericprojectconstants.h"
+#include "foldermakestep.h"
+#include "folderproject.h"
+#include "folderprojectconstants.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
@@ -45,10 +45,10 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Utils::Id id)
+FolderBuildConfiguration::FolderBuildConfiguration(Target *parent, Utils::Id id)
     : BuildConfiguration(parent, id)
 {
     setConfigWidgetDisplayName(tr("Generic Manager"));
@@ -66,13 +66,13 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Utils::Id i
 
 // GenericBuildConfigurationFactory
 
-GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
+FolderBuildConfigurationFactory::FolderBuildConfigurationFactory()
 {
-    registerBuildConfiguration<GenericBuildConfiguration>
+    registerBuildConfiguration<FolderBuildConfiguration>
         ("GenericProjectManager.GenericBuildConfiguration");
 
-    setSupportedProjectType(Constants::GENERICPROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
+    setSupportedProjectType(Constants::FOLDERPROJECT_ID);
+    setSupportedProjectMimeTypeName(Constants::FOLDERMIMETYPE);
 
     setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
         BuildInfo info;
@@ -88,7 +88,7 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
     });
 }
 
-void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
+void FolderBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
     QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
 }

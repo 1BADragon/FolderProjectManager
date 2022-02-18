@@ -25,22 +25,22 @@
 
 #pragma once
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Constants {
 
-const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
+const char FOLDERMIMETYPE[]    = "text/x-folder-project"; // ### FIXME
 
-const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
+const char GENERIC_MS_ID[] = "FolderProjectManager.FolderMakeStep";
 
 // Contexts
 const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 
 // Project
-const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";
+const char FOLDERPROJECT_ID[]  = "FolderProjectManager.FolderProject";
 
 // File Templates
-const char GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE[] = "-std=c++17";
-const char GENERICPROJECT_CFLAGS_FILE_TEMPLATE[] = "-std=c17";
+const char FOLDERPROJECT_CXXFLAGS_FILE_TEMPLATE[] = "-std=c++17";
+const char FOLDERPROJECT_CFLAGS_FILE_TEMPLATE[] = "-std=c17";
 
 } // namespace Constants
 } // namespace GenericProjectManager

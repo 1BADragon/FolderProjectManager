@@ -2,7 +2,7 @@ import qbs 1.0
 import qbs.FileInfo
 
 QtcPlugin {
-    name: "GenericProjectManager"
+    name: "folderProjectManager"
 
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
@@ -24,18 +24,18 @@ QtcPlugin {
     files: [
         "filesselectionwizardpage.cpp",
         "filesselectionwizardpage.h",
-        "genericbuildconfiguration.cpp",
-        "genericbuildconfiguration.h",
-        "genericmakestep.cpp",
-        "genericmakestep.h",
-        "genericproject.cpp",
-        "genericproject.h",
-        "genericprojectconstants.h",
-        "genericprojectfileseditor.cpp",
-        "genericprojectfileseditor.h",
-        "genericprojectplugin.cpp",
-        "genericprojectplugin.h",
-        "genericprojectwizard.cpp",
-        "genericprojectwizard.h",
+        "folderbuildconfiguration.cpp",
+        "folderbuildconfiguration.h",
+        "foldermakestep.cpp",
+        "foldermakestep.h",
+        "folderproject.cpp",
+        "folderproject.h",
+        "folderprojectconstants.h",
+        "folderprojectfileseditor.cpp",
+        "folderprojectfileseditor.h",
+        "folderprojectplugin.cpp",
+        "folderprojectplugin.h",
+        "folderprojectwizard.cpp",
+        "folderprojectwizard.h",
     ]
 }

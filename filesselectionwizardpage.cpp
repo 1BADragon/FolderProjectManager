@@ -25,8 +25,8 @@
 
 #include "filesselectionwizardpage.h"
 
-#include "genericprojectwizard.h"
-#include "genericprojectconstants.h"
+#include "folderprojectwizard.h"
+#include "folderprojectconstants.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -36,10 +36,10 @@
 
 #include <QVBoxLayout>
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard,
+FilesSelectionWizardPage::FilesSelectionWizardPage(FolderProjectWizardDialog *genericProjectWizard,
                                                    QWidget *parent) :
     QWizardPage(parent),
     m_genericProjectWizardDialog(genericProjectWizard),

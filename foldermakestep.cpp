@@ -23,15 +23,15 @@
 **
 ****************************************************************************/
 
-#include "genericmakestep.h"
-#include "genericprojectconstants.h"
+#include "foldermakestep.h"
+#include "folderprojectconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
 class GenericMakeStep : public ProjectExplorer::MakeStep
@@ -52,11 +52,11 @@ GenericMakeStep::GenericMakeStep(BuildStepList *parent, Utils::Id id)
     }
 }
 
-GenericMakeStepFactory::GenericMakeStepFactory()
+FolderMakeStepFactory::FolderMakeStepFactory()
 {
     registerStep<GenericMakeStep>(Constants::GENERIC_MS_ID);
     setDisplayName(MakeStep::defaultDisplayName());
-    setSupportedProjectType(Constants::GENERICPROJECT_ID);
+    setSupportedProjectType(Constants::FOLDERPROJECT_ID);
 }
 
 } // namespace Internal

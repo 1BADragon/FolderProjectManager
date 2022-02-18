@@ -27,13 +27,13 @@
 
 #include <projectexplorer/makestep.h>
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class GenericMakeStepFactory final : public ProjectExplorer::BuildStepFactory
+class FolderMakeStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
-    GenericMakeStepFactory();
+    FolderMakeStepFactory();
 };
 
 } // namespace Internal

@@ -27,22 +27,22 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class GenericProjectPlugin : public ExtensionSystem::IPlugin
+class FolderProjectPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "FolderProjectManager.json")
 
 public:
-    ~GenericProjectPlugin() override;
+    ~FolderProjectPlugin() override;
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override { }
 
-    class GenericProjectPluginPrivate *d = nullptr;
+    class FolderProjectPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

@@ -27,13 +27,13 @@
 
 #include <texteditor/texteditor.h>
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class ProjectFilesFactory : public TextEditor::TextEditorFactory
+class FolderFilesFactory : public TextEditor::TextEditorFactory
 {
 public:
-    ProjectFilesFactory();
+    FolderFilesFactory();
 };
 
 } // namespace Internal

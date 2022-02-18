@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(FolderAsProject)
+project(FolderProjectManager)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -11,7 +11,7 @@ find_package(QtCreator COMPONENTS Core REQUIRED)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 set(QtX Qt${QT_VERSION_MAJOR})
 
-add_qtc_plugin(FolderAsProject
+add_qtc_plugin(FolderProjectManager
   PLUGIN_DEPENDS
     QtCreator::Core
   DEPENDS
@@ -22,8 +22,20 @@ add_qtc_plugin(FolderAsProject
     .github/workflows/build_cmake.yml
     .github/workflows/README.md
     README.md
-    folderasproject.cpp
-    folderasproject.h
-    folderasproject_global.h
-    folderasprojectconstants.h
+    filesselectionwizardpage.cpp
+    filesselectionwizardpage.h
+    folderbuildconfiguration.cpp
+    folderbuildconfiguration.h
+    foldermakestep.cpp
+    foldermakestep.h
+    folderproject.cpp
+    folderproject.h
+    folderprojectconstants.h
+    folderprojectfileseditor.cpp
+    folderprojectfileseditor.h
+    folderprojectmanager.qbs
+    folderprojectplugin.cpp
+    folderprojectplugin.h
+    folderprojectwizard.cpp
+    folderprojectwizard.h
 )

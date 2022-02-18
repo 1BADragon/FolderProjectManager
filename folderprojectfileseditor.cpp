@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "genericprojectfileseditor.h"
-#include "genericprojectconstants.h"
+#include "folderprojectfileseditor.h"
+#include "folderprojectconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -34,14 +34,14 @@
 
 using namespace TextEditor;
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
 //
 // ProjectFilesFactory
 //
 
-ProjectFilesFactory::ProjectFilesFactory()
+FolderFilesFactory::FolderFilesFactory()
 {
     setId(Constants::FILES_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));

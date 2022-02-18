@@ -27,23 +27,23 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
-class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
+class FolderBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
     friend class ProjectExplorer::BuildConfigurationFactory;
-    GenericBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+    FolderBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
     void addToEnvironment(Utils::Environment &env) const final;
 };
 
-class GenericBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
+class FolderBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
 public:
-    GenericBuildConfigurationFactory();
+    FolderBuildConfigurationFactory();
 };
 
 } // namespace Internal

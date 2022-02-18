@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "genericprojectwizard.h"
-#include "genericprojectconstants.h"
+#include "folderprojectwizard.h"
+#include "folderprojectconstants.h"
 #include "filesselectionwizardpage.h"
 
 #include <coreplugin/icore.h>
@@ -48,7 +48,7 @@
 
 using namespace Utils;
 
-namespace GenericProjectManager {
+namespace FolderProjectManager {
 namespace Internal {
 
 const char ConfigFileTemplate[] =
@@ -61,7 +61,7 @@ const char ConfigFileTemplate[] =
 //
 //////////////////////////////////////////////////////////////////////////////
 
-GenericProjectWizardDialog::GenericProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+FolderProjectWizardDialog::FolderProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                        QWidget *parent) :
     Core::BaseFileWizard(factory, QVariantMap(), parent)
 {
@@ -80,27 +80,27 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(const Core::BaseFileWizar
     addPage(m_secondPage);
 }
 
-FilePath GenericProjectWizardDialog::filePath() const
+FilePath FolderProjectWizardDialog::filePath() const
 {
     return m_firstPage->filePath();
 }
 
-FilePaths GenericProjectWizardDialog::selectedPaths() const
+FilePaths FolderProjectWizardDialog::selectedPaths() const
 {
     return m_secondPage->selectedPaths();
 }
 
-FilePaths GenericProjectWizardDialog::selectedFiles() const
+FilePaths FolderProjectWizardDialog::selectedFiles() const
 {
     return m_secondPage->selectedFiles();
 }
 
-void GenericProjectWizardDialog::setFilePath(const FilePath &path)
+void FolderProjectWizardDialog::setFilePath(const FilePath &path)
 {
     m_firstPage->setFilePath(path);
 }
 
-QString GenericProjectWizardDialog::projectName() const
+QString FolderProjectWizardDialog::projectName() const
 {
     return m_firstPage->fileName();
 }
@@ -111,9 +111,9 @@ QString GenericProjectWizardDialog::projectName() const
 //
 //////////////////////////////////////////////////////////////////////////////
 
-GenericProjectWizard::GenericProjectWizard()
+FolderProjectWizard::FolderProjectWizard()
 {
-    setSupportedProjectTypes({Constants::GENERICPROJECT_ID});
+    setSupportedProjectTypes({Constants::FOLDERPROJECT_ID});
     setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
     setDisplayName(tr("Import Existing Project"));
     setId("Z.Makefile");
@@ -125,10 +125,10 @@ GenericProjectWizard::GenericProjectWizard()
     setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
-Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent,
+Core::BaseFileWizard *FolderProjectWizard::create(QWidget *parent,
                                                    const Core::WizardDialogParameters &parameters) const
 {
-    auto wizard = new GenericProjectWizardDialog(this, parent);
+    auto wizard = new FolderProjectWizardDialog(this, parent);
 
     wizard->setFilePath(parameters.defaultPath());
 
@@ -138,12 +138,12 @@ Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent,
     return wizard;
 }
 
-Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
+Core::GeneratedFiles FolderProjectWizard::generateFiles(const QWizard *w,
                                                          QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
 
-    auto wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
+    auto wizard = qobject_cast<const FolderProjectWizardDialog *>(w);
     const FilePath projectPath = wizard->filePath();
     const QString projectName = wizard->projectName();
     const FilePath creatorFileName = projectPath.pathAppended(projectName + ".creator");
@@ -194,10 +194,10 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
 
     Core::GeneratedFile generatedCxxFlagsFile(cxxflagsFileName);
     generatedCxxFlagsFile.setContents(
-        QLatin1String(Constants::GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE));
+        QLatin1String(Constants::FOLDERPROJECT_CXXFLAGS_FILE_TEMPLATE));
 
     Core::GeneratedFile generatedCFlagsFile(cflagsFileName);
-    generatedCFlagsFile.setContents(QLatin1String(Constants::GENERICPROJECT_CFLAGS_FILE_TEMPLATE));
+    generatedCFlagsFile.setContents(QLatin1String(Constants::FOLDERPROJECT_CFLAGS_FILE_TEMPLATE));
 
     Core::GeneratedFiles files;
     files.append(generatedFilesFile);
@@ -210,7 +210,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+bool FolderProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
                                              QString *errorMessage) const
 {
     Q_UNUSED(w)
