@@ -75,9 +75,9 @@ FolderProjectWizardDialog::FolderProjectWizardDialog(const Core::BaseFileWizardF
     addPage(m_firstPage);
 
     // second page
-    m_secondPage = new FilesSelectionWizardPage(this);
-    m_secondPage->setTitle(tr("File Selection"));
-    addPage(m_secondPage);
+//    m_secondPage = new FilesSelectionWizardPage(this);
+//    m_secondPage->setTitle(tr("File Selection"));
+//    addPage(m_secondPage);
 }
 
 FilePath FolderProjectWizardDialog::filePath() const

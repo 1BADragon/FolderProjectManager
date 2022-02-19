@@ -67,7 +67,7 @@ public:
     FolderMakeStepFactory makeStepFactory;
     FolderBuildConfigurationFactory buildConfigFactory;
 
-    QAction editFilesAction{FolderProjectPlugin::tr("Edit Files..."), nullptr};
+    QAction openFolderAction{FolderProjectPlugin::tr("Open Folder..."), nullptr};
 };
 
 FolderProjectPlugin::~FolderProjectPlugin()
@@ -89,30 +89,18 @@ FolderProjectPluginPrivate::FolderProjectPluginPrivate()
 
     ActionContainer *mproject = ActionManager::actionContainer(PEC::M_PROJECTCONTEXT);
 
-    Command *command = ActionManager::registerAction(&editFilesAction,
-        "FolderProjectManager.EditFiles", Context(Constants::FOLDERPROJECT_ID));
-    command->setAttribute(Command::CA_Hide);
-    mproject->addAction(command, PEC::G_PROJECT_FILES);
+//    Command *command = ActionManager::registerAction(&editFilesAction,
+//        "FolderProjectManager.EditFiles", Context(Constants::FOLDERPROJECT_ID));
+//    command->setAttribute(Command::CA_Hide);
+//    mproject->addAction(command, PEC::G_PROJECT_FILES);
 
-    connect(&editFilesAction, &QAction::triggered, this, [] {
-        if (auto genericProject = qobject_cast<FolderProject *>(ProjectTree::currentProject()))
-            genericProject->editFilesTriggered();
-    });
+//    connect(&editFilesAction, &QAction::triggered, this, [] {
+//        if (auto genericProject = qobject_cast<FolderProject *>(ProjectTree::currentProject()))
+//            genericProject->editFilesTriggered();
+//    });
 
-    const auto removeDirAction = new QAction(FolderProjectPlugin::tr("Remove Directory"), this);
-    Command * const cmd = ActionManager::registerAction(removeDirAction, "FolderProject.RemoveDir",
-                                                        Context(PEC::C_PROJECT_TREE));
-    ActionManager::actionContainer(PEC::M_FOLDERCONTEXT)->addAction(cmd, PEC::G_FOLDER_OTHER);
-    connect(removeDirAction, &QAction::triggered, this, [] {
-        const auto folderNode = ProjectTree::currentNode()->asFolderNode();
-        QTC_ASSERT(folderNode, return);
-        const auto project = qobject_cast<FolderProject *>(folderNode->getProject());
-        QTC_ASSERT(project, return);
-        const FilePaths filesToRemove = transform(
-                    folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),
-                    [](const Node *node) { return node->filePath();});
-        project->removeFilesTriggered(filesToRemove);
-    });
+    Command *command = ActionManager::registerAction(&openFolderAction,
+        "File", Context());
 }
 
 } // namespace Internal
