@@ -14,6 +14,9 @@ set(QtX Qt${QT_VERSION_MAJOR})
 add_qtc_plugin(FolderProjectManager
   PLUGIN_DEPENDS
     QtCreator::Core
+    QtCreator::ProjectExplorer
+    QtCreator::QtSupport
+    QtCreator::TextEditor
   DEPENDS
     ${QtX}::Widgets
     QtCreator::ExtensionSystem
@@ -22,6 +25,10 @@ add_qtc_plugin(FolderProjectManager
     .github/workflows/build_cmake.yml
     .github/workflows/README.md
     README.md
+    folderprojectmanager.qbs
+    folderprojectmanager.qrc
+
+    # Actual Source Files...
     filesselectionwizardpage.cpp
     filesselectionwizardpage.h
     folderbuildconfiguration.cpp
@@ -33,7 +40,6 @@ add_qtc_plugin(FolderProjectManager
     folderprojectconstants.h
     folderprojectfileseditor.cpp
     folderprojectfileseditor.h
-    folderprojectmanager.qbs
     folderprojectplugin.cpp
     folderprojectplugin.h
     folderprojectwizard.cpp

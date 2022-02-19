@@ -38,9 +38,5 @@ const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 // Project
 const char FOLDERPROJECT_ID[]  = "FolderProjectManager.FolderProject";
 
-// File Templates
-const char FOLDERPROJECT_CXXFLAGS_FILE_TEMPLATE[] = "-std=c++17";
-const char FOLDERPROJECT_CFLAGS_FILE_TEMPLATE[] = "-std=c17";
-
 } // namespace Constants
 } // namespace GenericProjectManager

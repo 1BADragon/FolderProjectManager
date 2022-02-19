@@ -90,7 +90,7 @@ FolderProjectPluginPrivate::FolderProjectPluginPrivate()
     ActionContainer *mproject = ActionManager::actionContainer(PEC::M_PROJECTCONTEXT);
 
     Command *command = ActionManager::registerAction(&editFilesAction,
-        "GenericProjectManager.EditFiles", Context(Constants::FOLDERPROJECT_ID));
+        "FolderProjectManager.EditFiles", Context(Constants::FOLDERPROJECT_ID));
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, PEC::G_PROJECT_FILES);
 
@@ -100,7 +100,7 @@ FolderProjectPluginPrivate::FolderProjectPluginPrivate()
     });
 
     const auto removeDirAction = new QAction(FolderProjectPlugin::tr("Remove Directory"), this);
-    Command * const cmd = ActionManager::registerAction(removeDirAction, "GenericProject.RemoveDir",
+    Command * const cmd = ActionManager::registerAction(removeDirAction, "FolderProject.RemoveDir",
                                                         Context(PEC::C_PROJECT_TREE));
     ActionManager::actionContainer(PEC::M_FOLDERCONTEXT)->addAction(cmd, PEC::G_FOLDER_OTHER);
     connect(removeDirAction, &QAction::triggered, this, [] {

@@ -65,7 +65,7 @@ FolderProjectWizardDialog::FolderProjectWizardDialog(const Core::BaseFileWizardF
                                                        QWidget *parent) :
     Core::BaseFileWizard(factory, QVariantMap(), parent)
 {
-    setWindowTitle(tr("Import Existing Project"));
+    setWindowTitle(tr("Import Folder As Project"));
 
     // first page
     m_firstPage = new Utils::FileWizardPage;
@@ -114,11 +114,10 @@ QString FolderProjectWizardDialog::projectName() const
 FolderProjectWizard::FolderProjectWizard()
 {
     setSupportedProjectTypes({Constants::FOLDERPROJECT_ID});
-    setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
-    setDisplayName(tr("Import Existing Project"));
-    setId("Z.Makefile");
-    setDescription(tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. "
-                      "This allows you to use %1 as a code editor.")
+    setIcon(QIcon(":/media/foldericon.svg"));
+    setDisplayName(tr("Import Folder Project"));
+    setId("F.Makefile");
+    setDescription(tr("Imports existing folder as a project workspace.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
@@ -146,12 +145,7 @@ Core::GeneratedFiles FolderProjectWizard::generateFiles(const QWizard *w,
     auto wizard = qobject_cast<const FolderProjectWizardDialog *>(w);
     const FilePath projectPath = wizard->filePath();
     const QString projectName = wizard->projectName();
-    const FilePath creatorFileName = projectPath.pathAppended(projectName + ".creator");
-    const FilePath filesFileName = projectPath.pathAppended(projectName + ".files");
-    const FilePath includesFileName = projectPath.pathAppended(projectName + ".includes");
-    const FilePath configFileName = projectPath.pathAppended(projectName + ".config");
-    const FilePath cxxflagsFileName = projectPath.pathAppended(projectName + ".cxxflags");
-    const FilePath cflagsFileName = projectPath.pathAppended(projectName + ".cflags");
+    const FilePath creatorFileName = projectPath.pathAppended(projectName + ".project");
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FilePath::toString);
 
     Utils::MimeType headerTy = Utils::mimeTypeForName(QLatin1String("text/x-chdr"));
@@ -183,29 +177,8 @@ Core::GeneratedFiles FolderProjectWizard::generateFiles(const QWizard *w,
     Utils::sort(sources);
     sources.append(QString()); // ensure newline at EOF
 
-    Core::GeneratedFile generatedFilesFile(filesFileName);
-    generatedFilesFile.setContents(sources.join(QLatin1Char('\n')));
-
-    Core::GeneratedFile generatedIncludesFile(includesFileName);
-    generatedIncludesFile.setContents(includePaths.join(QLatin1Char('\n')));
-
-    Core::GeneratedFile generatedConfigFile(configFileName);
-    generatedConfigFile.setContents(QLatin1String(ConfigFileTemplate));
-
-    Core::GeneratedFile generatedCxxFlagsFile(cxxflagsFileName);
-    generatedCxxFlagsFile.setContents(
-        QLatin1String(Constants::FOLDERPROJECT_CXXFLAGS_FILE_TEMPLATE));
-
-    Core::GeneratedFile generatedCFlagsFile(cflagsFileName);
-    generatedCFlagsFile.setContents(QLatin1String(Constants::FOLDERPROJECT_CFLAGS_FILE_TEMPLATE));
-
     Core::GeneratedFiles files;
-    files.append(generatedFilesFile);
-    files.append(generatedIncludesFile);
-    files.append(generatedConfigFile);
     files.append(generatedCreatorFile);
-    files.append(generatedCxxFlagsFile);
-    files.append(generatedCFlagsFile);
 
     return files;
 }

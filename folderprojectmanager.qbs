@@ -2,7 +2,7 @@ import qbs 1.0
 import qbs.FileInfo
 
 QtcPlugin {
-    name: "folderProjectManager"
+    name: "FolderProjectManager"
 
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
@@ -12,14 +12,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
-
-    pluginRecommends: [
-        "CppEditor"
-    ]
-
-    pluginTestDepends: [
-        "CppEditor",
-    ]
 
     files: [
         "filesselectionwizardpage.cpp",
@@ -37,5 +29,7 @@ QtcPlugin {
         "folderprojectplugin.h",
         "folderprojectwizard.cpp",
         "folderprojectwizard.h",
+
+        "FolderIcon.svg"
     ]
 }
