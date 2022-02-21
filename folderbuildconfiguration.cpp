@@ -69,7 +69,7 @@ FolderBuildConfiguration::FolderBuildConfiguration(Target *parent, Utils::Id id)
 FolderBuildConfigurationFactory::FolderBuildConfigurationFactory()
 {
     registerBuildConfiguration<FolderBuildConfiguration>
-        ("GenericProjectManager.GenericBuildConfiguration");
+        ("FolderProjectManager.FolderBuildConfiguration");
 
     setSupportedProjectType(Constants::FOLDERPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::FOLDERMIMETYPE);

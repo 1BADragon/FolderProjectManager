@@ -52,7 +52,6 @@ public:
     QString projectName() const;
 
     Utils::FileWizardPage *m_firstPage;
-    FilesSelectionWizardPage *m_secondPage;
 };
 
 class FolderProjectWizard : public Core::BaseFileWizardFactory

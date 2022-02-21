@@ -40,7 +40,6 @@ public:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override { }
 
     class FolderProjectPluginPrivate *d = nullptr;
 };

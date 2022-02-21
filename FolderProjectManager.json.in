@@ -14,40 +14,10 @@
         \"<?xml version=\'1.0\'?>\",
 
         \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
-        \"  <mime-type type=\'text/x-generic-project\'>\",
+        \"  <mime-type type=\'text/x-folder-project\'>\",
         \"    <sub-class-of type=\'text/plain\'/>\",
-        \"    <comment>Generic Qt Creator Project file</comment>\",
-        \"    <glob pattern=\'*.creator\'/>\",
-        \"  </mime-type>\",
-
-        \"  <mime-type type=\'application/vnd.qtcreator.generic.files\'>\",
-        \"    <sub-class-of type=\'text/plain\'/>\",
-        \"    <comment>Generic Project Files</comment>\",
-        \"    <glob pattern=\'*.files\'/>\",
-        \"  </mime-type>\",
-
-        \"  <mime-type type=\'application/vnd.qtcreator.generic.includes\'>\",
-        \"    <sub-class-of type=\'text/plain\'/>\",
-        \"    <comment>Generic Project Include Paths</comment>\",
-        \"    <glob pattern=\'*.includes\'/>\",
-        \"  </mime-type>\",
-
-        \"  <mime-type type=\'application/vnd.qtcreator.generic.config\'>\",
-        \"    <sub-class-of type=\'text/plain\'/>\",
-        \"    <comment>Generic Project Configuration File</comment>\",
-        \"    <glob pattern=\'*.config\'/>\",
-        \"  </mime-type>\",
-
-        \"  <mime-type type=\'application/vnd.qtcreator.generic.cxxflags\'>\",
-        \"    <sub-class-of type=\'text/plain\'/>\",
-        \"    <comment>Generic Project CXXFLAGS File</comment>\",
-        \"    <glob pattern=\'*.cxxflags\'/>\",
-        \"  </mime-type>\",
-
-        \"  <mime-type type=\'application/vnd.qtcreator.generic.cflags\'>\",
-        \"    <sub-class-of type=\'text/plain\'/>\",
-        \"    <comment>Generic Project CFLAGS File</comment>\",
-        \"    <glob pattern=\'*.cflags\'/>\",
+        \"    <comment>Folder Project file</comment>\",
+        \"    <glob pattern=\'.project\'/>\",
         \"  </mime-type>\",
 
         \"</mime-info>\"

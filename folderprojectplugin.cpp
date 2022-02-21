@@ -48,7 +48,12 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <utils/mimetypes/mimedatabase.h>
+
 #include <QAction>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QDebug>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -66,8 +71,6 @@ public:
     FolderFilesFactory projectFilesFactory;
     FolderMakeStepFactory makeStepFactory;
     FolderBuildConfigurationFactory buildConfigFactory;
-
-    QAction openFolderAction{FolderProjectPlugin::tr("Open Folder..."), nullptr};
 };
 
 FolderProjectPlugin::~FolderProjectPlugin()
@@ -87,20 +90,6 @@ FolderProjectPluginPrivate::FolderProjectPluginPrivate()
 
     IWizardFactory::registerFactoryCreator([] { return QList<IWizardFactory *>{new FolderProjectWizard}; });
 
-    ActionContainer *mproject = ActionManager::actionContainer(PEC::M_PROJECTCONTEXT);
-
-//    Command *command = ActionManager::registerAction(&editFilesAction,
-//        "FolderProjectManager.EditFiles", Context(Constants::FOLDERPROJECT_ID));
-//    command->setAttribute(Command::CA_Hide);
-//    mproject->addAction(command, PEC::G_PROJECT_FILES);
-
-//    connect(&editFilesAction, &QAction::triggered, this, [] {
-//        if (auto genericProject = qobject_cast<FolderProject *>(ProjectTree::currentProject()))
-//            genericProject->editFilesTriggered();
-//    });
-
-    Command *command = ActionManager::registerAction(&openFolderAction,
-        "File", Context());
 }
 
 } // namespace Internal

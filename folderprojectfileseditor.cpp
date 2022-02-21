@@ -44,12 +44,13 @@ namespace Internal {
 FolderFilesFactory::FolderFilesFactory()
 {
     setId(Constants::FILES_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
-    addMimeType("application/vnd.qtcreator.generic.files");
-    addMimeType("application/vnd.qtcreator.generic.includes");
-    addMimeType("application/vnd.qtcreator.generic.config");
-    addMimeType("application/vnd.qtcreator.generic.cxxflags");
-    addMimeType("application/vnd.qtcreator.generic.cflags");
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".project Editor"));
+    addMimeType(Constants::FOLDERMIMETYPE);
+//    addMimeType("application/vnd.qtcreator.generic.files");
+//    addMimeType("application/vnd.qtcreator.generic.includes");
+//    addMimeType("application/vnd.qtcreator.generic.config");
+//    addMimeType("application/vnd.qtcreator.generic.cxxflags");
+//    addMimeType("application/vnd.qtcreator.generic.cflags");
 
     setDocumentCreator([]() { return new TextDocument(Constants::FILES_EDITOR_ID); });
     setEditorActionHandlers(TextEditorActionHandler::None);

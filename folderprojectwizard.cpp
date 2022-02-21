@@ -51,10 +51,6 @@ using namespace Utils;
 namespace FolderProjectManager {
 namespace Internal {
 
-const char ConfigFileTemplate[] =
-        "// Add predefined macros for your project here. For example:\n"
-        "// #define THE_ANSWER 42\n";
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // GenericProjectWizardDialog
@@ -73,26 +69,11 @@ FolderProjectWizardDialog::FolderProjectWizardDialog(const Core::BaseFileWizardF
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
     addPage(m_firstPage);
-
-    // second page
-//    m_secondPage = new FilesSelectionWizardPage(this);
-//    m_secondPage->setTitle(tr("File Selection"));
-//    addPage(m_secondPage);
 }
 
 FilePath FolderProjectWizardDialog::filePath() const
 {
     return m_firstPage->filePath();
-}
-
-FilePaths FolderProjectWizardDialog::selectedPaths() const
-{
-    return m_secondPage->selectedPaths();
-}
-
-FilePaths FolderProjectWizardDialog::selectedFiles() const
-{
-    return m_secondPage->selectedFiles();
 }
 
 void FolderProjectWizardDialog::setFilePath(const FilePath &path)
@@ -116,7 +97,7 @@ FolderProjectWizard::FolderProjectWizard()
     setSupportedProjectTypes({Constants::FOLDERPROJECT_ID});
     setIcon(QIcon(":/media/foldericon.svg"));
     setDisplayName(tr("Import Folder Project"));
-    setId("F.Makefile");
+    setId("FolderProject");
     setDescription(tr("Imports existing folder as a project workspace.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
@@ -145,37 +126,11 @@ Core::GeneratedFiles FolderProjectWizard::generateFiles(const QWizard *w,
     auto wizard = qobject_cast<const FolderProjectWizardDialog *>(w);
     const FilePath projectPath = wizard->filePath();
     const QString projectName = wizard->projectName();
-    const FilePath creatorFileName = projectPath.pathAppended(projectName + ".project");
-    const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FilePath::toString);
-
-    Utils::MimeType headerTy = Utils::mimeTypeForName(QLatin1String("text/x-chdr"));
-
-    QStringList nameFilters = headerTy.globPatterns();
-
-    QStringList includePaths;
-    const QDir dir(projectPath.toString());
-    foreach (const QString &path, paths) {
-        QFileInfo fileInfo(path);
-        QDir thisDir(fileInfo.absoluteFilePath());
-
-        if (! thisDir.entryList(nameFilters, QDir::Files).isEmpty()) {
-            QString relative = dir.relativeFilePath(path);
-            if (relative.isEmpty())
-                relative = QLatin1Char('.');
-            includePaths.append(relative);
-        }
-    }
-    includePaths.append(QString()); // ensure newline at EOF
+    const FilePath creatorFileName = projectPath.pathAppended(".project");
 
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
-    generatedCreatorFile.setContents(QLatin1String("[General]\n"));
+    generatedCreatorFile.setContents(QLatin1String("{}\n"));
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-
-    QStringList sources = Utils::transform(wizard->selectedFiles(), &Utils::FilePath::toString);
-    for (int i = 0; i < sources.length(); ++i)
-        sources[i] = dir.relativeFilePath(sources[i]);
-    Utils::sort(sources);
-    sources.append(QString()); // ensure newline at EOF
 
     Core::GeneratedFiles files;
     files.append(generatedCreatorFile);

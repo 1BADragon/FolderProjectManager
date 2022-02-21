@@ -189,9 +189,9 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
     : Project(Constants::FOLDERMIMETYPE, fileName)
 {
     setId(Constants::FOLDERPROJECT_ID);
-    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    //setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
-    setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
+    //setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
 }
 
 FolderBuildSystem::FolderBuildSystem(Target *target)
