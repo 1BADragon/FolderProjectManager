@@ -6,6 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
 
 find_package(QtCreator COMPONENTS Core REQUIRED)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
@@ -28,20 +29,18 @@ add_qtc_plugin(FolderProjectManager
     folderprojectmanager.qbs
     folderprojectmanager.qrc
 
-    # Actual Source Files...
-    filesselectionwizardpage.cpp
-    filesselectionwizardpage.h
-    folderbuildconfiguration.cpp
-    folderbuildconfiguration.h
-    foldermakestep.cpp
-    foldermakestep.h
-    folderproject.cpp
-    folderproject.h
-    folderprojectconstants.h
-    folderprojectfileseditor.cpp
-    folderprojectfileseditor.h
-    folderprojectplugin.cpp
-    folderprojectplugin.h
-    folderprojectwizard.cpp
-    folderprojectwizard.h
+    # Actual Source Files...    
+    filesselectionwizardpage.h filesselectionwizardpage.cpp
+    folderbuildconfiguration.h folderbuildconfiguration.cpp
+    foldermakestep.h foldermakestep.cpp
+    folderproject.h folderproject.cpp
+    folderprojectconstants.h    
+    folderprojectfileseditor.h folderprojectfileseditor.cpp
+    folderprojectplugin.h folderprojectplugin.cpp
+    folderprojectwizard.h folderprojectwizard.cpp
+    folderprojectsettings.h folderprojectsettings.cpp
 )
+
+set_property(TARGET FolderProjectManager
+    APPEND
+    PROPERTY ADDITIONAL_CLEAN_FILES ${PROJECT_BINARY_DIR}/FolderProjectManager.json)

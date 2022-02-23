@@ -98,8 +98,7 @@ FolderProjectWizard::FolderProjectWizard()
     setIcon(QIcon(":/media/foldericon.svg"));
     setDisplayName(tr("Import Folder Project"));
     setId("FolderProject");
-    setDescription(tr("Imports existing folder as a project workspace.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME));
+    setDescription(tr("Imports existing folder as a project workspace."));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
     setFlags(Core::IWizardFactory::PlatformIndependent);
@@ -126,10 +125,10 @@ Core::GeneratedFiles FolderProjectWizard::generateFiles(const QWizard *w,
     auto wizard = qobject_cast<const FolderProjectWizardDialog *>(w);
     const FilePath projectPath = wizard->filePath();
     const QString projectName = wizard->projectName();
-    const FilePath creatorFileName = projectPath.pathAppended(".project");
+    const FilePath creatorFileName = projectPath.pathAppended(projectName + ".project");
 
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
-    generatedCreatorFile.setContents(QLatin1String("{}\n"));
+    generatedCreatorFile.setContents(projectDocument(projectName));
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
     Core::GeneratedFiles files;
@@ -143,6 +142,11 @@ bool FolderProjectWizard::postGenerateFiles(const QWizard *w, const Core::Genera
 {
     Q_UNUSED(w)
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+}
+
+QString FolderProjectWizard::projectDocument(const QString &project_name)
+{
+
 }
 
 } // namespace Internal

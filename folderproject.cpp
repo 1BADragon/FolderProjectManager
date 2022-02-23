@@ -191,7 +191,7 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
     setId(Constants::FOLDERPROJECT_ID);
     //setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
-    //setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
+    setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
 }
 
 FolderBuildSystem::FolderBuildSystem(Target *target)
@@ -209,13 +209,7 @@ FolderBuildSystem::FolderBuildSystem(Target *target)
     }
 
     connect(target->project(), &Project::projectFileIsDirty, this, [this](const FilePath &p) {
-        if (p.endsWith(".files"))
-            refresh(Files);
-        else if (p.endsWith(".includes") || p.endsWith(".config") || p.endsWith(".cxxflags")
-                 || p.endsWith(".cflags"))
-            refresh(Configuration);
-        else
-            refresh(Everything);
+            this->refresh(Everything);
     });
 
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
@@ -372,35 +366,41 @@ FilePath FolderBuildSystem::findCommonSourceRoot()
 
 void FolderBuildSystem::refresh(RefreshOptions options)
 {
-    ParseGuard guard = guardParsingRun();
-    parse(options);
+//    ParseGuard guard = guardParsingRun();
+//    parse(options);
 
-    if (options & Files) {
-        auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
-        newRoot->setDisplayName(projectFilePath().completeBaseName());
+//    if (options & Files) {
+//        auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
+//        newRoot->setDisplayName(projectFilePath().completeBaseName());
 
-        // find the common base directory of all source files
-        FilePath baseDir = findCommonSourceRoot();
+//        // find the common base directory of all source files
+//        FilePath baseDir = findCommonSourceRoot();
 
-        std::vector<std::unique_ptr<FileNode>> fileNodes;
-        for (const SourceFile &f : qAsConst(m_files)) {
-            FileType fileType = FileType::Source; // ### FIXME
-            if (f.first.endsWith(".qrc"))
-                fileType = FileType::Resource;
-            fileNodes.emplace_back(std::make_unique<FileNode>(f.first, fileType));
-        }
-        newRoot->addNestedNodes(std::move(fileNodes), baseDir);
+//        std::vector<std::unique_ptr<FileNode>> fileNodes;
+//        for (const SourceFile &f : qAsConst(m_files)) {
+//            FileType fileType = FileType::Source; // ### FIXME
+//            if (f.first.endsWith(".qrc"))
+//                fileType = FileType::Resource;
+//            fileNodes.emplace_back(std::make_unique<FileNode>(f.first, fileType));
+//        }
+//        newRoot->addNestedNodes(std::move(fileNodes), baseDir);
 
-        newRoot->compress();
-        setRootProjectNode(std::move(newRoot));
-    }
+//        newRoot->compress();
+//        setRootProjectNode(std::move(newRoot));
+//    }
 
-    refreshCppCodeModel();
-    updateDeploymentData();
-    guard.markAsSuccess();
+//    refreshCppCodeModel();
+//    updateDeploymentData();
+//    guard.markAsSuccess();
 
     emitBuildSystemUpdated();
 }
+
+void FolderBuildSystem::parse(RefreshOptions options)
+{
+
+}
+
 
 /**
  * Expands environment variables and converts the path from relative to the

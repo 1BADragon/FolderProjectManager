@@ -66,6 +66,9 @@ protected:
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
                            QString *errorMessage) const override;
+
+private:
+    QString projectDocument(const QString &project_name);
 };
 
 } // namespace Internal

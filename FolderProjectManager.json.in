@@ -17,7 +17,7 @@
         \"  <mime-type type=\'text/x-folder-project\'>\",
         \"    <sub-class-of type=\'text/plain\'/>\",
         \"    <comment>Folder Project file</comment>\",
-        \"    <glob pattern=\'.project\'/>\",
+        \"    <glob pattern=\'*.project\'/>\",
         \"  </mime-type>\",
 
         \"</mime-info>\"
