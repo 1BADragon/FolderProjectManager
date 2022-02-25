@@ -20,10 +20,16 @@ public:
     const std::list<Utils::FilePath>& list() const;
 
 signals:
+    void filesUpdated();
+
+private slots:
+    void fileChanged(const QString &path);
+    void directoryChanged(const QString &path);
 
 private:
     Utils::FilePath _root;
     std::list<Utils::FilePath> _list;
+    Utils::FileSystemWatcher _watcher;
 
     void buildFileList();
     void traverseDir(const Utils::FilePath &dir);

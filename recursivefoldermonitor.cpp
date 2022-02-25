@@ -7,6 +7,11 @@ RecursiveFolderMonitor::RecursiveFolderMonitor(const Utils::FilePath &root, QObj
     : QObject{parent}, _root(root), _list()
 {
     buildFileList();
+    connect(&_watcher, &Utils::FileSystemWatcher::fileChanged,
+            this, &RecursiveFolderMonitor::fileChanged);
+
+    connect(&_watcher, &Utils::FileSystemWatcher::directoryChanged,
+            this, &RecursiveFolderMonitor::directoryChanged);
 }
 
 const std::list<Utils::FilePath>& RecursiveFolderMonitor::list() const
@@ -14,8 +19,23 @@ const std::list<Utils::FilePath>& RecursiveFolderMonitor::list() const
     return _list;
 }
 
+void RecursiveFolderMonitor::fileChanged(const QString &path)
+{
+    Q_UNUSED(path);
+    buildFileList();
+    emit filesUpdated();
+}
+
+void RecursiveFolderMonitor::directoryChanged(const QString &path)
+{
+    Q_UNUSED(path);
+    buildFileList();
+    emit filesUpdated();
+}
+
 void RecursiveFolderMonitor::buildFileList()
 {
+    _watcher.clear();
     _list.clear();
     traverseDir(_root);
 }
