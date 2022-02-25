@@ -132,16 +132,12 @@ public:
 
     bool supportsAction(Node *, ProjectAction action, const Node *) const final
     {
-        return action == AddNewFile
-                || action == AddExistingFile
-                || action == AddExistingDirectory
-                || action == RemoveFile
+        return  action == RemoveFile
                 || action == Rename;
     }
 
     RemovedFilesFromProject removeFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
     bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
-    bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
     QString name() const final { return QLatin1String("generic"); }
 
     void refresh(RefreshOptions options);
@@ -197,7 +193,7 @@ FolderBuildSystem::FolderBuildSystem(Target *target)
         const bool successFullyCreatedProjectUpdater
                 = QMetaObject::invokeMethod(projectUpdaterFactory,
                                             "create",
-                                            Q_RETURN_ARG(CppEditor::CppProjectUpdaterInterface *,
+                                            Q_RETURN_ARG(CppEditor::CppProjectUpdaterInterface*,
                                                          m_cppCodeModelUpdater));
         QTC_CHECK(successFullyCreatedProjectUpdater);
     }
@@ -240,46 +236,6 @@ static void insertSorted(QStringList *list, const QString &value)
         list->insert(it, value);
 }
 
-bool FolderBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths *)
-{
-    const QStringList filePaths = Utils::transform(filePaths_, &FilePath::toString);
-    const QDir baseDir(projectDirectory().toString());
-    QStringList newList = m_rawFileList;
-    if (filePaths.size() > m_rawFileList.size()) {
-        newList += transform(filePaths, [&baseDir](const QString &p) {
-            return baseDir.relativeFilePath(p);
-        });
-        sort(newList);
-        newList.erase(std::unique(newList.begin(), newList.end()), newList.end());
-    } else {
-        for (const QString &filePath : filePaths)
-            insertSorted(&newList, baseDir.relativeFilePath(filePath));
-    }
-
-    const auto includes = transform<QSet<QString>>(m_projectIncludePaths,
-                                                   [](const HeaderPath &hp) { return hp.path; });
-    QSet<QString> toAdd;
-
-    for (const QString &filePath : filePaths) {
-        const QString directory = QFileInfo(filePath).absolutePath();
-        if (!includes.contains(directory))
-            toAdd << directory;
-    }
-
-    const QDir dir(projectDirectory().toString());
-    const auto candidates = toAdd;
-    for (const QString &path : candidates) {
-        QString relative = dir.relativeFilePath(path);
-        if (relative.isEmpty())
-            relative = '.';
-        m_rawProjectIncludePaths.append(relative);
-    }
-
-    refresh(Everything);
-
-    return true;
-}
-
 RemovedFilesFromProject FolderBuildSystem::removeFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
     QStringList newList = m_rawFileList;
@@ -313,8 +269,6 @@ bool FolderBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const Fi
 
 void FolderBuildSystem::refresh(RefreshOptions options)
 {
-    qDebug() << "Refresh called";
-
     ParseGuard guard = guardParsingRun();
     auto baseDir = projectDirectory();
     RecursiveFolderMonitor monitor(baseDir);
