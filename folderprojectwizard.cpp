@@ -25,7 +25,7 @@
 
 #include "folderprojectwizard.h"
 #include "folderprojectconstants.h"
-#include "filesselectionwizardpage.h"
+#include "folderprojectsettings.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -144,9 +144,11 @@ bool FolderProjectWizard::postGenerateFiles(const QWizard *w, const Core::Genera
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
-QString FolderProjectWizard::projectDocument(const QString &project_name)
-{
+QString FolderProjectWizard::projectDocument(const QString &project_name) const
+{    
+    QString doc("[project]\nname=%1\n");
 
+    return doc.arg(project_name);
 }
 
 } // namespace Internal

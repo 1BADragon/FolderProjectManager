@@ -28,6 +28,7 @@
 #include "folderbuildconfiguration.h"
 #include "foldermakestep.h"
 #include "folderprojectconstants.h"
+#include "recursivefoldermonitor.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
@@ -366,6 +367,29 @@ FilePath FolderBuildSystem::findCommonSourceRoot()
 
 void FolderBuildSystem::refresh(RefreshOptions options)
 {
+    qDebug() << "Refresh called";
+
+    ParseGuard guard = guardParsingRun();
+    auto baseDir = projectDirectory();
+    RecursiveFolderMonitor monitor(baseDir);
+
+    auto root = std::make_unique<ProjectNode>(baseDir);
+    std::vector<std::unique_ptr<FileNode>> fileNodes;
+    for (auto &f : monitor.list()) {
+        FileType fileType = FileType::Source;
+        if (f == projectFilePath()) {
+            fileType = FileType::Project;
+        }
+        fileNodes.emplace_back(std::make_unique<FileNode>(f, fileType));
+    }
+
+    root->addNestedNodes(std::move(fileNodes), baseDir);
+    root->compress();
+    setRootProjectNode(std::move(root));
+
+    guard.markAsSuccess();
+
+
 //    ParseGuard guard = guardParsingRun();
 //    parse(options);
 

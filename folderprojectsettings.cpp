@@ -1,131 +1,45 @@
 #include "folderprojectsettings.h"
 
+#include <QSettings>
+
 namespace FolderProjectManager {
 namespace Internal {
 
-static FolderProjectSettings default_settings;
-
-ValueRef Value::object()
+Setting::Setting(const QString &key) :
+    _key(key)
 {
-    auto r = Value::make_shared();
-
-    r->_data = Object();
-    return r;
 }
 
-ValueRef Value::array()
+Setting::Setting(const QString &key, const SettingValue &v) :
+    _key(key), _default(v)
 {
-    auto r = Value::make_shared();
-
-    r->_data = Array();
-    return r;
 }
 
-ValueRef Value::integer(long long v)
+QString Setting::key() const
 {
-    auto r = Value::make_shared();
-
-    (*r) = v;
-    return r;
+    return _key;
 }
 
-ValueRef Value::real(double d)
+SettingRegistry::SettingRegistry(QString filename) :
+    QSettings(filename)
 {
-    auto r = Value::make_shared();
 
-    (*r) = d;
-    return r;
 }
 
-ValueRef Value::string(const std::string &s)
+SettingValue SettingRegistry::value(const Setting &key) const
 {
-    auto r = Value::make_shared();
-
-    (*r) = s;
-    return r;
-}
-
-bool Value::has(const std::string &key)
-{
-    if (_data.index() != 0) {
-        return false;
+    if (contains(key.key())) {
+        return QSettings::value(key.key());
     }
 
-    return std::get<Object>(_data).count(key) > 0;
+    return key.def();
 }
 
-bool Value::has(size_t index)
+void SettingRegistry::setValue(const Setting &key, SettingValue v)
 {
-    if (_data.index() != 1) {
-        return false;
-    }
-
-    return std::get<Array>(_data).size() > index;
+    QSettings::setValue(key.key(), v);
 }
 
-ValueRef& Value::operator[](size_t index)
-{
-    return std::get<Array>(_data)[index];
-}
-
-ValueRef& Value::operator[](const std::string &key)
-{
-    return std::get<Object>(_data)[key];
-}
-
-Value& Value::operator=(long long v)
-{
-    this->_data = v;
-    return *this;
-}
-
-Value& Value::operator=(double d)
-{
-    this->_data = d;
-    return *this;
-}
-
-Value& Value::operator=(const std::string &s)
-{
-    this->_data = s;
-    return *this;
-}
-
-FolderProjectSettings::FolderProjectSettings()
-    : _base()
-{
-
-}
-
-ValueRef& FolderProjectSettings::operator[](const std::string &key)
-{
-    return _base[key];
-}
-
-ValueRef& FolderProjectSettings::operator[](const Setting &key)
-{
-    auto path = key.path();
-
-    Object &o = _base;
-
-    for (size_t i = 0; i < path.size() - 1; ++i) {
-        auto &p = path[i];
-        auto loc = o.find(p);
-
-        if (loc == o.end()) {
-            o[p] = Value::object();
-        }
-
-        o = o[p]->get<Object>();
-    }
-
-    return o[path.back()];
-}
-
-FolderProjectSettings& getDefault()
-{
-    return default_settings;
-}
 
 }
 }

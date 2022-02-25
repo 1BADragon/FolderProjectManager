@@ -25,40 +25,20 @@
 
 #include "folderprojectplugin.h"
 
-#include "folderbuildconfiguration.h"
 #include "folderprojectwizard.h"
 #include "folderprojectconstants.h"
 #include "folderprojectfileseditor.h"
+#include "folderbuildconfiguration.h"
 #include "foldermakestep.h"
 #include "folderproject.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/selectablefilesmodel.h>
-#include <projectexplorer/taskhub.h>
-
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QAction>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDebug>
-
-using namespace Core;
-using namespace ProjectExplorer;
-using namespace Utils;
-namespace PEC = ProjectExplorer::Constants;
 
 namespace FolderProjectManager {
 namespace Internal {
@@ -86,11 +66,12 @@ bool FolderProjectPlugin::initialize(const QStringList &, QString *)
 
 FolderProjectPluginPrivate::FolderProjectPluginPrivate()
 {
-    ProjectManager::registerProjectType<FolderProject>(Constants::FOLDERMIMETYPE);
+    ProjectExplorer::ProjectManager::registerProjectType<FolderProject>(Constants::FOLDERMIMETYPE);
 
-    IWizardFactory::registerFactoryCreator([] { return QList<IWizardFactory *>{new FolderProjectWizard}; });
-
+    Core::IWizardFactory::registerFactoryCreator([] {
+        return QList<Core::IWizardFactory *>{new FolderProjectWizard};
+    });
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+}
+}
