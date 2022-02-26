@@ -5,19 +5,56 @@ namespace Internal {
 
 static FolderProjectSettings default_settings;
 
-ValueRef Value::object()
+static Path parse_path(const std::string &path);
+
+Setting::Setting(const std::string &path, long long v)
+    : _path(parse_path(path))
+{
+    default_settings[path] = Value::integer(v);
+}
+
+Setting::Setting(const std::string &path, double v)
+    : _path(parse_path(path))
+{
+    default_settings[path] = Value::real(v);
+}
+
+Setting::Setting(const std::string &path, const std::string &v)
+    : _path(parse_path(path))
+{
+    default_settings[path] = Value::string(v);
+}
+
+Setting::Setting(const std::string &path, const Array &v)
+    : _path(parse_path(path))
+{
+    default_settings[path] = Value::array(v);
+}
+
+Setting::Setting(const std::string &path, const Object &v)
+    : _path(parse_path(path))
+{
+    default_settings[path] = Value::object(v);
+}
+
+Path Setting::path() const
+{
+    return _path;
+}
+
+ValueRef Value::object(Object v)
 {
     auto r = Value::make_shared();
 
-    r->_data = Object();
+    r->_data = v;
     return r;
 }
 
-ValueRef Value::array()
+ValueRef Value::array(Array v)
 {
     auto r = Value::make_shared();
 
-    r->_data = Array();
+    r->_data = v;
     return r;
 }
 
@@ -99,13 +136,16 @@ FolderProjectSettings::FolderProjectSettings()
 
 ValueRef& FolderProjectSettings::operator[](const std::string &key)
 {
-    return _base[key];
+    return resolve(parse_path(key));
 }
 
 ValueRef& FolderProjectSettings::operator[](const Setting &key)
 {
-    auto path = key.path();
+    return resolve(key.path());
+}
 
+ValueRef& FolderProjectSettings::resolve(const Path &path)
+{
     Object &o = _base;
 
     for (size_t i = 0; i < path.size() - 1; ++i) {
@@ -125,6 +165,24 @@ ValueRef& FolderProjectSettings::operator[](const Setting &key)
 FolderProjectSettings& getDefault()
 {
     return default_settings;
+}
+
+static Path parse_path(const std::string &path)
+{
+    Path ret;
+
+    std::string remaining = path;
+    std::string::size_type pos;
+
+    while ((pos = remaining.find('.')) != std::string::npos) {
+        std::string fragment = remaining.substr(0, pos);
+        ret.push_back(fragment);
+
+        remaining = remaining.substr(pos);
+    }
+
+    ret.push_back(remaining);
+    return ret;
 }
 
 }
