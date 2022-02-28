@@ -128,7 +128,7 @@ Core::GeneratedFiles FolderProjectWizard::generateFiles(const QWizard *w,
     const FilePath creatorFileName = projectPath.pathAppended(projectName + ".project");
 
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
-    generatedCreatorFile.setContents(projectDocument(projectName));
+    generatedCreatorFile.setContents(projectDocument());
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
     Core::GeneratedFiles files;
@@ -144,11 +144,9 @@ bool FolderProjectWizard::postGenerateFiles(const QWizard *w, const Core::Genera
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
-QString FolderProjectWizard::projectDocument(const QString &project_name) const
+QString FolderProjectWizard::projectDocument() const
 {    
-    QString doc("[project]\nname=%1\n");
-
-    return doc.arg(project_name);
+    return defaultSettingDocument();
 }
 
 } // namespace Internal

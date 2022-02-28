@@ -29,6 +29,7 @@
 #include "foldermakestep.h"
 #include "folderprojectconstants.h"
 #include "recursivefoldermonitor.h"
+#include "folderprojectsettings.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
@@ -70,6 +71,7 @@
 #include <QPair>
 #include <QSet>
 #include <QStringList>
+#include <QList>
 
 #include <set>
 
@@ -85,6 +87,13 @@ enum RefreshOptions {
     Configuration = 0x02,
     Everything    = Files | Configuration
 };
+
+namespace Settings {
+Setting includes("includedirs", Array());
+Setting cflags("cflags", Array());
+Setting cxxflags("c++flags", Array());
+Setting ignore("ignore", Array());
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -132,7 +141,8 @@ public:
 
     bool supportsAction(Node *, ProjectAction action, const Node *) const final
     {
-        return  action == RemoveFile
+        return  action == AddNewFile
+                || action == RemoveFile
                 || action == Rename;
     }
 
@@ -146,25 +156,14 @@ public:
 
     using SourceFile = QPair<FilePath, QStringList>;
     using SourceFiles = QList<SourceFile>;
-    SourceFiles processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = nullptr) const;
 
     Utils::FilePath findCommonSourceRoot();
     void refreshCppCodeModel();
     void updateDeploymentData();
 
-    void removeFiles(const FilePaths &filesToRemove);
-
 private:
     RecursiveFolderMonitor _monitor;
-
-    QStringList m_rawFileList;
-    SourceFiles m_files;
-    QHash<QString, QString> m_rawListEntries;
-    QStringList m_rawProjectIncludePaths;
-    ProjectExplorer::HeaderPaths m_projectIncludePaths;
-    QStringList m_cxxflags;
-    QStringList m_cflags;
+    FolderProjectSettings _settings;
 
     CppEditor::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
 };
@@ -187,6 +186,9 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
 FolderBuildSystem::FolderBuildSystem(Target *target)
     : BuildSystem(target), _monitor(target->project()->projectDirectory())
 {
+    _settings.setFile(target->project()->projectFilePath());
+    _settings.update();
+
     QObject *projectUpdaterFactory = ExtensionSystem::PluginManager::getObjectByName(
                 "CppProjectUpdaterFactory");
     if (projectUpdaterFactory) {
@@ -227,55 +229,37 @@ void FolderBuildSystem::triggerParsing()
     refresh(Everything);
 }
 
-static void insertSorted(QStringList *list, const QString &value)
-{
-    const auto it = std::lower_bound(list->begin(), list->end(), value);
-    if (it == list->end())
-        list->append(value);
-    else if (*it > value)
-        list->insert(it, value);
-}
-
 RemovedFilesFromProject FolderBuildSystem::removeFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    QStringList newList = m_rawFileList;
-
-    for (const FilePath &filePath : filePaths) {
-        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toString());
-        if (i != m_rawListEntries.end())
-            newList.removeOne(i.value());
-    }
+    Q_UNUSED(filePaths);
 
     return RemovedFilesFromProject::Ok;
 }
 
 bool FolderBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    //    QStringList newList = m_rawFileList;
+    Q_UNUSED(oldFilePath);
+    Q_UNUSED(newFilePath);
 
-    //    QHash<QString, QString>::iterator i = m_rawListEntries.find(oldFilePath.toString());
-    //    if (i != m_rawListEntries.end()) {
-    //        int index = newList.indexOf(i.value());
-    //        if (index != -1) {
-    //            QDir baseDir(projectDirectory().toString());
-    //            newList.removeAt(index);
-    //            insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
-    //        }
-    //    }
-
-    //    return saveRawFileList(newList);
     return true;
 }
 
 void FolderBuildSystem::refresh(RefreshOptions options)
 {
+    Q_UNUSED(options);
+
     ParseGuard guard = guardParsingRun();
     auto baseDir = projectDirectory();
-    RecursiveFolderMonitor monitor(baseDir);
+
+    QStringList filters;
+    for (auto v : _settings[Settings::ignore].toArray()) {
+        filters.push_back(v.toString());
+    }
+    _monitor.setFilters(filters);
 
     auto root = std::make_unique<ProjectNode>(baseDir);
     std::vector<std::unique_ptr<FileNode>> fileNodes;
-    for (auto &f : monitor.list()) {
+    for (auto &f : _monitor.list()) {
         FileType fileType = FileType::Source;
         if (f == projectFilePath()) {
             fileType = FileType::Project;
@@ -288,95 +272,8 @@ void FolderBuildSystem::refresh(RefreshOptions options)
     setRootProjectNode(std::move(root));
 
     guard.markAsSuccess();
-
-
-    //    ParseGuard guard = guardParsingRun();
-    //    parse(options);
-
-    //    if (options & Files) {
-    //        auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
-    //        newRoot->setDisplayName(projectFilePath().completeBaseName());
-
-    //        // find the common base directory of all source files
-    //        FilePath baseDir = findCommonSourceRoot();
-
-    //        std::vector<std::unique_ptr<FileNode>> fileNodes;
-    //        for (const SourceFile &f : qAsConst(m_files)) {
-    //            FileType fileType = FileType::Source; // ### FIXME
-    //            if (f.first.endsWith(".qrc"))
-    //                fileType = FileType::Resource;
-    //            fileNodes.emplace_back(std::make_unique<FileNode>(f.first, fileType));
-    //        }
-    //        newRoot->addNestedNodes(std::move(fileNodes), baseDir);
-
-    //        newRoot->compress();
-    //        setRootProjectNode(std::move(newRoot));
-    //    }
-
-    //    refreshCppCodeModel();
-    //    updateDeploymentData();
-    //    guard.markAsSuccess();
-
     refreshCppCodeModel();
     emitBuildSystemUpdated();
-}
-
-/**
- * Expands environment variables and converts the path from relative to the
- * project to an absolute path.
- *
- * The \a map variable is an optional argument that will map the returned
- * absolute paths back to their original \a entries.
- */
-FolderBuildSystem::SourceFiles FolderBuildSystem::processEntries(
-        const QStringList &paths, QHash<QString, QString> *map) const
-{
-    const BuildConfiguration *const buildConfig = target()->activeBuildConfiguration();
-
-    const Utils::Environment buildEnv = buildConfig ? buildConfig->environment()
-                                                    : Utils::Environment::systemEnvironment();
-
-    const Utils::MacroExpander *expander = project()->macroExpander();
-    if (buildConfig)
-        expander = buildConfig->macroExpander();
-    else
-        expander = target()->macroExpander();
-
-    const QDir projectDir(projectDirectory().toString());
-
-    QFileInfo fileInfo;
-    SourceFiles sourceFiles;
-    std::set<QString> seenFiles;
-    for (const QString &path : paths) {
-        QString trimmedPath = path.trimmed();
-        if (trimmedPath.isEmpty())
-            continue;
-
-        trimmedPath = buildEnv.expandVariables(trimmedPath);
-        trimmedPath = expander->expand(trimmedPath);
-
-        trimmedPath = Utils::FilePath::fromUserInput(trimmedPath).toString();
-
-        QStringList tagsForFile;
-        const int tagListPos = trimmedPath.indexOf('|');
-        if (tagListPos != -1) {
-            tagsForFile = trimmedPath.mid(tagListPos + 1).simplified()
-                    .split(' ', Qt::SkipEmptyParts);
-            trimmedPath = trimmedPath.left(tagListPos).trimmed();
-        }
-
-        if (!seenFiles.insert(trimmedPath).second)
-            continue;
-
-        fileInfo.setFile(projectDir, trimmedPath);
-        if (fileInfo.exists()) {
-            const QString absPath = fileInfo.absoluteFilePath();
-            sourceFiles.append({FilePath::fromString(absPath), tagsForFile});
-            if (map)
-                map->insert(absPath, trimmedPath);
-        }
-    }
-    return sourceFiles;
 }
 
 void FolderBuildSystem::refreshCppCodeModel()
@@ -392,13 +289,38 @@ void FolderBuildSystem::refreshCppCodeModel()
     rpp.setDisplayName(project()->displayName());
     rpp.setProjectFileLocation(projectFilePath().toString());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
-    rpp.setHeaderPaths(m_projectIncludePaths);
-    rpp.setFlagsForCxx({nullptr, m_cxxflags, projectDirectory().toString()});
-    rpp.setFlagsForC({nullptr, m_cflags, projectDirectory().toString()});
 
-    static const auto sourceFilesToStringList = [](const SourceFiles &sourceFiles) {
-        return Utils::transform(sourceFiles, [](const SourceFile &f) {
-            return f.first.toString();
+    ProjectExplorer::HeaderPaths headers;
+    auto base_dir = projectDirectory();
+    for (auto v : _settings[Settings::includes].toArray()) {        
+        auto path = Utils::FilePath::fromString(v.toString());
+        Utils::FilePath complete_path;
+
+        if (path.isRelativePath()) {
+            complete_path = base_dir.pathAppended(path.toString());
+        } else {
+            complete_path = path;
+        }
+
+        headers.push_back({complete_path.toString(), ProjectExplorer::HeaderPathType::User});
+    }
+    rpp.setHeaderPaths(headers);
+
+    QStringList cflags;
+    for (auto v : _settings[Settings::cflags].toArray()) {
+        cflags.append(v.toString());
+    }
+    rpp.setFlagsForCxx({nullptr, cflags, projectDirectory().toString()});
+
+    QStringList cxxflags;
+    for (auto v : _settings[Settings::cxxflags].toArray()) {
+        cxxflags.append(v.toString());
+    }
+    rpp.setFlagsForC({nullptr, cxxflags, projectDirectory().toString()});
+
+    static const auto sourceFilesToStringList = [](const QList<Utils::FilePath> &sourceFiles) {
+        return Utils::transform(sourceFiles, [](const Utils::FilePath &f) {
+            return f.toString();
         });
     };
     QStringList file_list;
@@ -407,7 +329,9 @@ void FolderBuildSystem::refreshCppCodeModel()
     }
     rpp.setFiles(file_list);
     rpp.setPreCompiledHeaders(sourceFilesToStringList(
-                                  Utils::filtered(m_files, [](const SourceFile &f) { return f.second.contains("pch"); })));
+                                  Utils::filtered(_monitor.list(), [](const Utils::FilePath &f) {
+        return f.toString().contains("pch");
+    })));
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 }
@@ -431,11 +355,6 @@ void FolderBuildSystem::updateDeploymentData()
                                                   projectDirectory().toString());
         setDeploymentData(deploymentData);
     }
-}
-
-void FolderBuildSystem::removeFiles(const FilePaths &filesToRemove)
-{
-
 }
 
 Project::RestoreResult FolderProject::fromMap(const QVariantMap &map, QString *errorMessage)
@@ -500,25 +419,6 @@ bool FolderProjectFile::reload(QString *errorString, IDocument::ReloadFlag flag,
         static_cast<FolderBuildSystem *>(t->buildSystem())->refresh(m_options);
 
     return true;
-}
-
-void FolderProject::editFilesTriggered()
-{
-    //    SelectableFilesDialogEditFiles sfd(projectDirectory(),
-    //                                       files(Project::AllFiles),
-    //                                       ICore::dialogParent());
-    //    if (sfd.exec() == QDialog::Accepted) {
-    //        if (Target *t = activeTarget()) {
-    //            auto bs = static_cast<FolderBuildSystem *>(t->buildSystem());
-    //            bs->setFiles(transform(sfd.selectedFiles(), &FilePath::toString));
-    //        }
-    //    }
-}
-
-void FolderProject::removeFilesTriggered(const FilePaths &filesToRemove)
-{
-    if (Target *t = activeTarget())
-        static_cast<FolderBuildSystem *>(t->buildSystem())->removeFiles(filesToRemove);
 }
 
 } // namespace Internal

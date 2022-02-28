@@ -37,9 +37,6 @@ class FolderProject : public ProjectExplorer::Project
 public:
     explicit FolderProject(const Utils::FilePath &filename);
 
-    void editFilesTriggered();
-    void removeFilesTriggered(const Utils::FilePaths &filesToRemove);
-
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;

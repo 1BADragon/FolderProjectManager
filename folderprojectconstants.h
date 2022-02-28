@@ -33,7 +33,7 @@ const char FOLDERMIMETYPE[]    = "text/x-folder-project"; // ### FIXME
 const char GENERIC_MS_ID[] = "FolderProjectManager.FolderMakeStep";
 
 // Contexts
-const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
+const char FILES_EDITOR_ID[]    = "XFP.FilesEditor";
 
 // Project
 const char FOLDERPROJECT_ID[]  = "FolderProjectManager.FolderProject";

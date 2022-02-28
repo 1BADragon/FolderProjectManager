@@ -1,188 +1,99 @@
 #include "folderprojectsettings.h"
 
+#include <memory>
+
+#include <QJsonDocument>
+#include <QJsonValue>
+#include <QJsonValueRef>
+#include <QTextCodec>
+
 namespace FolderProjectManager {
 namespace Internal {
 
-static FolderProjectSettings default_settings;
+static std::unique_ptr<QJsonObject> default_settings;
+static QJsonObject& defaultObject();
+static QString formatJsonObject(const QJsonObject &obj);
 
-static Path parse_path(const std::string &path);
-
-Setting::Setting(const std::string &path, long long v)
-    : _path(parse_path(path))
+Setting::Setting(const QString &path, QJsonValue val)
+    : _path(path)
 {
-    default_settings[path] = Value::integer(v);
+    defaultObject().insert(path, val);
 }
 
-Setting::Setting(const std::string &path, double v)
-    : _path(parse_path(path))
-{
-    default_settings[path] = Value::real(v);
-}
-
-Setting::Setting(const std::string &path, const std::string &v)
-    : _path(parse_path(path))
-{
-    default_settings[path] = Value::string(v);
-}
-
-Setting::Setting(const std::string &path, const Array &v)
-    : _path(parse_path(path))
-{
-    default_settings[path] = Value::array(v);
-}
-
-Setting::Setting(const std::string &path, const Object &v)
-    : _path(parse_path(path))
-{
-    default_settings[path] = Value::object(v);
-}
-
-Path Setting::path() const
+QString Setting::path() const
 {
     return _path;
 }
 
-ValueRef Value::object(Object v)
+bool FolderProjectSettings::setFile(const Utils::FilePath &filepath)
 {
-    auto r = Value::make_shared();
-
-    r->_data = v;
-    return r;
-}
-
-ValueRef Value::array(Array v)
-{
-    auto r = Value::make_shared();
-
-    r->_data = v;
-    return r;
-}
-
-ValueRef Value::integer(long long v)
-{
-    auto r = Value::make_shared();
-
-    (*r) = v;
-    return r;
-}
-
-ValueRef Value::real(double d)
-{
-    auto r = Value::make_shared();
-
-    (*r) = d;
-    return r;
-}
-
-ValueRef Value::string(const std::string &s)
-{
-    auto r = Value::make_shared();
-
-    (*r) = s;
-    return r;
-}
-
-bool Value::has(const std::string &key)
-{
-    if (_data.index() != 0) {
+    auto doc = QJsonDocument::fromJson(filepath.fileContents());
+    if (!doc.isObject()) {
         return false;
     }
-
-    return std::get<Object>(_data).count(key) > 0;
+    _base = doc.object();
+    _path = filepath;
+    return true;
 }
 
-bool Value::has(size_t index)
+QJsonValueRef FolderProjectSettings::operator[](const QString &key)
 {
-    if (_data.index() != 1) {
-        return false;
-    }
-
-    return std::get<Array>(_data).size() > index;
+    return resolve(key);
 }
 
-ValueRef& Value::operator[](size_t index)
-{
-    return std::get<Array>(_data)[index];
-}
-
-ValueRef& Value::operator[](const std::string &key)
-{
-    return std::get<Object>(_data)[key];
-}
-
-Value& Value::operator=(long long v)
-{
-    this->_data = v;
-    return *this;
-}
-
-Value& Value::operator=(double d)
-{
-    this->_data = d;
-    return *this;
-}
-
-Value& Value::operator=(const std::string &s)
-{
-    this->_data = s;
-    return *this;
-}
-
-FolderProjectSettings::FolderProjectSettings()
-    : _base()
-{
-
-}
-
-ValueRef& FolderProjectSettings::operator[](const std::string &key)
-{
-    return resolve(parse_path(key));
-}
-
-ValueRef& FolderProjectSettings::operator[](const Setting &key)
+QJsonValueRef FolderProjectSettings::operator[](const Setting &key)
 {
     return resolve(key.path());
 }
 
-ValueRef& FolderProjectSettings::resolve(const Path &path)
+QJsonValueRef FolderProjectSettings::resolve(const QString &path)
 {
-    Object &o = _base;
+    return _base[path];
+}
 
-    for (size_t i = 0; i < path.size() - 1; ++i) {
-        auto &p = path[i];
-        auto loc = o.find(p);
+QString FolderProjectSettings::format() const
+{
+    return formatJsonObject(_base);
+}
 
-        if (loc == o.end()) {
-            o[p] = Value::object();
+void FolderProjectSettings::update()
+{
+    for (auto &k : default_settings->keys()) {
+        if (!_base.contains(k)) {
+            _base.insert(k, default_settings->value(k));
         }
-
-        o = o[p]->get<Object>();
     }
 
-    return o[path.back()];
+    _path.writeFileContents(format().toLocal8Bit());
 }
 
-FolderProjectSettings& getDefault()
+void FolderProjectSettings::insert(const QString &key, QJsonValue &val)
 {
-    return default_settings;
+    _base.insert(key, val);
 }
 
-static Path parse_path(const std::string &path)
+
+QString defaultSettingDocument()
 {
-    Path ret;
+    return formatJsonObject(defaultObject());
+}
 
-    std::string remaining = path;
-    std::string::size_type pos;
-
-    while ((pos = remaining.find('.')) != std::string::npos) {
-        std::string fragment = remaining.substr(0, pos);
-        ret.push_back(fragment);
-
-        remaining = remaining.substr(pos);
+static QJsonObject& defaultObject()
+{
+    if (!default_settings) {
+        default_settings = std::make_unique<QJsonObject>();
     }
 
-    ret.push_back(remaining);
-    return ret;
+    return *default_settings;
+}
+
+static QString formatJsonObject(const QJsonObject &obj)
+{
+    QJsonDocument d;
+
+    d.setObject(obj);
+
+    return QString::fromUtf8(d.toJson(QJsonDocument::Indented));
 }
 
 }

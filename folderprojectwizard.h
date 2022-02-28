@@ -68,7 +68,7 @@ protected:
                            QString *errorMessage) const override;
 
 private:
-    QString projectDocument(const QString &project_name) const;
+    QString projectDocument() const;
 };
 
 } // namespace Internal

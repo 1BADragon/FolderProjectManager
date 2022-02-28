@@ -2,7 +2,7 @@
 #define RECURSIVEFOLDERMONITOR_H
 
 #include <QObject>
-#include <list>
+#include <QList>
 
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
@@ -17,7 +17,9 @@ public:
     explicit RecursiveFolderMonitor(const Utils::FilePath &root,
                                     QObject *parent = nullptr);
 
-    const std::list<Utils::FilePath>& list() const;
+    const QList<Utils::FilePath>& list() const;
+
+    void setFilters(const QStringList &newFilters);
 
 signals:
     void filesUpdated();
@@ -28,8 +30,10 @@ private slots:
 
 private:
     Utils::FilePath _root;
-    std::list<Utils::FilePath> _list;
+    QList<Utils::FilePath> _list;
     Utils::FileSystemWatcher _watcher;
+    QStringList _filters;
+
 
     void buildFileList();
     void traverseDir(const Utils::FilePath &dir);

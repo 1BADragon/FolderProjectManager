@@ -14,7 +14,7 @@ RecursiveFolderMonitor::RecursiveFolderMonitor(const Utils::FilePath &root, QObj
             this, &RecursiveFolderMonitor::directoryChanged);
 }
 
-const std::list<Utils::FilePath>& RecursiveFolderMonitor::list() const
+const QList<Utils::FilePath> &RecursiveFolderMonitor::list() const
 {
     return _list;
 }
@@ -33,25 +33,34 @@ void RecursiveFolderMonitor::directoryChanged(const QString &path)
     emit filesUpdated();
 }
 
+void RecursiveFolderMonitor::setFilters(const QStringList &newFilters)
+{
+    _filters = newFilters;
+    buildFileList();
+}
+
 void RecursiveFolderMonitor::buildFileList()
 {
     _watcher.clear();
     _list.clear();
+
+    _watcher.addDirectory(_root.toString(), Utils::FileSystemWatcher::WatchAllChanges);
     traverseDir(_root);
 }
 
 void RecursiveFolderMonitor::traverseDir(const Utils::FilePath &dir)
 {
-    QStringList filters;
-    for (auto &c : dir.dirEntries(filters)) {
+    for (auto &c : dir.dirEntries(_filters)) {
         if (c == dir || dir.isChildOf(c)) {
             continue;
         }
 
         if (c.isDir()) {
+            _watcher.addDirectory(c.toString(), Utils::FileSystemWatcher::WatchAllChanges);
             traverseDir(c);
         } else if (c.isFile()) {
             _list.push_back(c);
+            _watcher.addFile(c.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
         }
     }
 }
