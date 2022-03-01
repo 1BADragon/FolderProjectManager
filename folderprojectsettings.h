@@ -35,7 +35,7 @@ public:
     QString format() const;
 
     void update();
-
+    bool refresh();
     void insert(const QString &key, QJsonValue &val);
 
 private:

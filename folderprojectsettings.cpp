@@ -27,13 +27,8 @@ QString Setting::path() const
 
 bool FolderProjectSettings::setFile(const Utils::FilePath &filepath)
 {
-    auto doc = QJsonDocument::fromJson(filepath.fileContents());
-    if (!doc.isObject()) {
-        return false;
-    }
-    _base = doc.object();
     _path = filepath;
-    return true;
+    return refresh();
 }
 
 QJsonValueRef FolderProjectSettings::operator[](const QString &key)
@@ -65,6 +60,17 @@ void FolderProjectSettings::update()
     }
 
     _path.writeFileContents(format().toLocal8Bit());
+}
+
+bool FolderProjectSettings::refresh()
+{
+    auto doc = QJsonDocument::fromJson(_path.fileContents());
+    if (!doc.isObject()) {
+        return false;
+    }
+
+    _base = doc.object();
+    return true;
 }
 
 void FolderProjectSettings::insert(const QString &key, QJsonValue &val)

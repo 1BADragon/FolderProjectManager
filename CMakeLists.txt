@@ -30,7 +30,6 @@ add_qtc_plugin(FolderProjectManager
     folderprojectmanager.qrc
 
     # Actual Source Files...    
-    #filesselectionwizardpage.h filesselectionwizardpage.cpp
     folderbuildconfiguration.h folderbuildconfiguration.cpp
     foldermakestep.h foldermakestep.cpp
     folderproject.h folderproject.cpp

@@ -17,12 +17,12 @@ public:
     explicit RecursiveFolderMonitor(const Utils::FilePath &root,
                                     QObject *parent = nullptr);
 
-    const QList<Utils::FilePath>& list() const;
+    const QList<Utils::FilePath> list() const;
 
     void setFilters(const QStringList &newFilters);
 
 signals:
-    void filesUpdated();
+    void filesChanged();
 
 private slots:
     void fileChanged(const QString &path);
@@ -30,13 +30,13 @@ private slots:
 
 private:
     Utils::FilePath _root;
-    QList<Utils::FilePath> _list;
+    QSet<Utils::FilePath> _files;
     Utils::FileSystemWatcher _watcher;
     QStringList _filters;
 
-
     void buildFileList();
-    void traverseDir(const Utils::FilePath &dir);
+    void traverseDirDeapthFirst(const Utils::FilePath &dir, int max_depth = INT_MAX);
+    void traverseDirBreathFirst(const Utils::FilePath &dir);
 };
 
 }

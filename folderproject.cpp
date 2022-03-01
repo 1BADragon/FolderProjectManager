@@ -205,7 +205,7 @@ FolderBuildSystem::FolderBuildSystem(Target *target)
         this->refresh(Everything);
     });
 
-    connect(&_monitor, &RecursiveFolderMonitor::filesUpdated, this, [this]() {
+    connect(&_monitor, &RecursiveFolderMonitor::filesChanged, this, [this]() {
         this->refresh(Everything);
     });
 
@@ -278,10 +278,15 @@ void FolderBuildSystem::refresh(RefreshOptions options)
 
 void FolderBuildSystem::refreshCppCodeModel()
 {
-    if (!m_cppCodeModelUpdater)
+    if (!m_cppCodeModelUpdater) {
         return;
-    if (target() != project()->activeTarget())
+    }
+    if (target() != project()->activeTarget()) {
         return;
+    }
+
+    _settings.refresh();
+
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
@@ -415,8 +420,9 @@ bool FolderProjectFile::reload(QString *errorString, IDocument::ReloadFlag flag,
     Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
-    if (Target *t = m_project->activeTarget())
+    if (Target *t = m_project->activeTarget()) {
         static_cast<FolderBuildSystem *>(t->buildSystem())->refresh(m_options);
+    }
 
     return true;
 }
