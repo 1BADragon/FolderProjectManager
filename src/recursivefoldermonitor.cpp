@@ -2,9 +2,13 @@
 
 #include <QApplication>
 #include <QQueue>
+#include <QRegExp>
+#include <QRegularExpression>
 
 namespace FolderProjectManager {
 namespace Internal {
+
+constexpr QDir::Filters DIRFILTERS = (QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
 
 RecursiveFolderMonitor::RecursiveFolderMonitor(const Utils::FilePath &root, QObject *parent)
     : QObject{parent}, _root(root), _files(), _filters()
@@ -24,8 +28,6 @@ const QList<Utils::FilePath> RecursiveFolderMonitor::list() const
 
 void RecursiveFolderMonitor::fileChanged(const QString &path)
 {
-    qDebug() << "file changed" << path;
-
     auto f = Utils::FilePath::fromString(path);
 
     if (f.exists()) {
@@ -45,8 +47,6 @@ void RecursiveFolderMonitor::fileChanged(const QString &path)
 
 void RecursiveFolderMonitor::directoryChanged(const QString &path)
 {
-    qDebug() << "directory changed" << path;
-
     auto f = Utils::FilePath::fromString(path);
 
     // scrub the list of childen of the dir
@@ -87,13 +87,9 @@ void RecursiveFolderMonitor::traverseDirDeapthFirst(const Utils::FilePath &dir, 
         return;
     }
 
-    //QApplication::processEvents();
+    QApplication::processEvents();
 
-    for (auto &c : dir.dirEntries(_filters)) {
-        if (c == dir || dir.isChildOf(c)) {
-            continue;
-        }
-
+    for (auto &c : dir.dirEntries(QStringList(), DIRFILTERS, QDir::Name)) {
         if (c.isDir()) {
             if (!_watcher.watchesDirectory(c.toString())) {
                 _watcher.addDirectory(c.toString(), Utils::FileSystemWatcher::WatchAllChanges);
@@ -124,11 +120,7 @@ void RecursiveFolderMonitor::traverseDirBreathFirst(const Utils::FilePath &dir)
             continue;
         }
 
-        for (auto &c : at.dirEntries(_filters)) {
-            if (c == at || at.isChildOf(c)) {
-                continue;
-            }
-
+        for (auto &c : at.dirEntries(QStringList(), DIRFILTERS, QDir::Name)) {
             if (c.isDir()) {
                 remaining.push_back(c);
 
@@ -136,7 +128,9 @@ void RecursiveFolderMonitor::traverseDirBreathFirst(const Utils::FilePath &dir)
                     _watcher.addDirectory(c.toString(), Utils::FileSystemWatcher::WatchAllChanges);
                 }
             } else if (c.isFile()) {
-                _files.insert(c);
+                if (!matchesFilter(c.toString())) {
+                    _files.insert(c);
+                }
 
                 if (!_watcher.watchesFile(c.toString())) {
                     _watcher.addFile(c.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
@@ -144,6 +138,21 @@ void RecursiveFolderMonitor::traverseDirBreathFirst(const Utils::FilePath &dir)
             }
         }
     }
+}
+
+bool RecursiveFolderMonitor::matchesFilter(const QString &path)
+{
+    for (auto &c : _filters) {
+        auto reges = QRegularExpression::wildcardToRegularExpression(c);
+        QRegularExpression f(reges);
+
+        auto match = f.match(c);
+        if (match.hasMatch()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 }

@@ -30,15 +30,15 @@ add_qtc_plugin(FolderProjectManager
     folderprojectmanager.qrc
 
     # Actual Source Files...    
-    folderbuildconfiguration.h folderbuildconfiguration.cpp
-    foldermakestep.h foldermakestep.cpp
-    folderproject.h folderproject.cpp
-    folderprojectconstants.h    
-    folderprojectfileseditor.h folderprojectfileseditor.cpp
-    folderprojectplugin.h folderprojectplugin.cpp
-    folderprojectwizard.h folderprojectwizard.cpp
-    folderprojectsettings.h folderprojectsettings.cpp
-    recursivefoldermonitor.h recursivefoldermonitor.cpp
+    src/folderbuildconfiguration.h src/folderbuildconfiguration.cpp
+    src/foldermakestep.h src/foldermakestep.cpp
+    src/folderproject.h src/folderproject.cpp
+    src/folderprojectconstants.h
+    src/folderprojectfileseditor.h src/folderprojectfileseditor.cpp
+    src/folderprojectplugin.h src/folderprojectplugin.cpp
+    src/folderprojectwizard.h src/folderprojectwizard.cpp
+    src/folderprojectsettings.h src/folderprojectsettings.cpp
+    src/recursivefoldermonitor.h src/recursivefoldermonitor.cpp
 )
 
 set_property(TARGET FolderProjectManager

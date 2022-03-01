@@ -92,7 +92,7 @@ namespace Settings {
 Setting includes("includedirs", Array());
 Setting cflags("cflags", Array());
 Setting cxxflags("c++flags", Array());
-Setting ignore("ignore", Array());
+Setting ignores("ignore", Array());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,6 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
     : Project(Constants::FOLDERMIMETYPE, fileName)
 {
     setId(Constants::FOLDERPROJECT_ID);
-    //setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
 }
@@ -252,7 +251,7 @@ void FolderBuildSystem::refresh(RefreshOptions options)
     auto baseDir = projectDirectory();
 
     QStringList filters;
-    for (auto v : _settings[Settings::ignore].toArray()) {
+    for (auto v : _settings[Settings::ignores].toArray()) {
         filters.push_back(v.toString());
     }
     _monitor.setFilters(filters);
