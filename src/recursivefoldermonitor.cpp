@@ -3,7 +3,6 @@
 #include <QApplication>
 #include <QQueue>
 #include <QRegExp>
-#include <QRegularExpression>
 
 namespace FolderProjectManager {
 namespace Internal {
@@ -68,7 +67,14 @@ void RecursiveFolderMonitor::directoryChanged(const QString &path)
 
 void RecursiveFolderMonitor::setFilters(const QStringList &newFilters)
 {
-    _filters = newFilters;
+    _filters.clear();
+
+    for (auto filter : newFilters) {
+        auto reges = QRegularExpression::wildcardToRegularExpression(filter,
+                                                                     QRegularExpression::UnanchoredWildcardConversion);
+
+        _filters.emplace_back(reges);
+    }
     buildFileList();
 }
 
@@ -142,11 +148,8 @@ void RecursiveFolderMonitor::traverseDirBreathFirst(const Utils::FilePath &dir)
 
 bool RecursiveFolderMonitor::matchesFilter(const QString &path)
 {
-    for (auto &c : _filters) {
-        auto reges = QRegularExpression::wildcardToRegularExpression(c);
-        QRegularExpression f(reges);
-
-        auto match = f.match(c);
+    for (auto &f : _filters) {
+        auto match = f.match(path);
         if (match.hasMatch()) {
             return true;
         }

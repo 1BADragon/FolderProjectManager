@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QRegularExpression>
 
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
@@ -32,7 +33,7 @@ private:
     Utils::FilePath _root;
     QSet<Utils::FilePath> _files;
     Utils::FileSystemWatcher _watcher;
-    QStringList _filters;
+    QVector<QRegularExpression> _filters;
 
     void buildFileList();
     void traverseDirDeapthFirst(const Utils::FilePath &dir, int max_depth = INT_MAX);
