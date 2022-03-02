@@ -1,5 +1,5 @@
-#ifndef RECURSIVEFOLDERMONITOR_H
-#define RECURSIVEFOLDERMONITOR_H
+#ifndef __RECURSIVEFOLDERMONITOR_H__
+#define __RECURSIVEFOLDERMONITOR_H__
 
 #include <QObject>
 #include <QList>

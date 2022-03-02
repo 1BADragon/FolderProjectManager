@@ -1,5 +1,5 @@
-#ifndef FOLDERPROJECTSETTINGS_H
-#define FOLDERPROJECTSETTINGS_H
+#ifndef __FOLDERPROJECTSETTINGS_H__
+#define __FOLDERPROJECTSETTINGS_H__
 
 #include <QJsonObject>
 #include <QJsonArray>
