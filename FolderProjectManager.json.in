@@ -1,11 +1,25 @@
 {
-    \"Name\" : \"FolderAsProject\",
-    \"Version\" : \"0.0.1\",
-    \"CompatVersion\" : \"0.0.1\",
+    \"Name\" : \"FolderProjectManager\",
+    \"Version\" : \"0.1.0\",
+    \"CompatVersion\" : \"0.1.0\",
     \"Vendor\" : \"1BADragon\",
     \"Copyright\" : \"(C) 1BADragon\",
-    \"License\" : \"Put short license information here\",
-    \"Description\" : \"Put a short description of your plugin here\",
+    \"License\" : [ ],
+    \"Category\" : \"Build Systems\",
+    \"Description\" : \"Folder Project support.\",
     \"Url\" : \"https://github.com/1BADragon/OpenFolder\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : [
+        \"<?xml version=\'1.0\'?>\",
+
+        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
+        \"  <mime-type type=\'text/x-folder-project\'>\",
+        \"    <sub-class-of type=\'text/plain\'/>\",
+        \"    <comment>Folder Project file</comment>\",
+        \"    <glob pattern=\'*.project\'/>\",
+        \"  </mime-type>\",
+
+        \"</mime-info>\"
+    ]
 }
