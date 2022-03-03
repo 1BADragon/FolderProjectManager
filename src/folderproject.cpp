@@ -134,7 +134,6 @@ public:
 
     Utils::FilePath findCommonSourceRoot();
     void refreshCppCodeModel();
-    void updateDeploymentData();
 
 private:
     RecursiveFolderMonitor _monitor;
@@ -313,27 +312,6 @@ void FolderBuildSystem::refreshCppCodeModel()
     })));
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
-}
-
-void FolderBuildSystem::updateDeploymentData()
-{
-    static const QString fileName("QtCreatorDeployment.txt");
-    Utils::FilePath deploymentFilePath;
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    if (bc)
-        deploymentFilePath = bc->buildDirectory().pathAppended(fileName);
-
-    bool hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
-    if (!hasDeploymentData) {
-        deploymentFilePath = projectDirectory().pathAppended(fileName);
-        hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
-    }
-    if (hasDeploymentData) {
-        DeploymentData deploymentData;
-        deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                                  projectDirectory().toString());
-        setDeploymentData(deploymentData);
-    }
 }
 
 Project::RestoreResult FolderProject::fromMap(const QVariantMap &map, QString *errorMessage)
