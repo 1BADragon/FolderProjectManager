@@ -23,9 +23,8 @@ add_qtc_plugin(FolderProjectManager
     QtCreator::ExtensionSystem
     QtCreator::Utils
   SOURCES
-    .github/workflows/build_cmake.yml
-    .github/workflows/README.md
     README.md
+    BUILDING.md
     folderprojectmanager.qbs
     folderprojectmanager.qrc
 
