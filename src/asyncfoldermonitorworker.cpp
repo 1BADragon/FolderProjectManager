@@ -13,9 +13,6 @@ AsyncFolderMonitorWorker::AsyncFolderMonitorWorker(const Utils::FilePath &root, 
     _root = root;
     _job_queue.emplace_back(_root);
 
-    connect(_watcher, &Utils::FileSystemWatcher::fileChanged,
-            this, &AsyncFolderMonitorWorker::fileChangedSlot);
-
     connect(_watcher, &Utils::FileSystemWatcher::directoryChanged,
             this, &AsyncFolderMonitorWorker::directoryChangedSlot);
 
@@ -32,25 +29,6 @@ QList<Utils::FilePath> AsyncFolderMonitorWorker::currentFileList()
     QMutexLocker _(&_mut);
 
     return {_files.begin(), _files.end()};
-}
-
-void AsyncFolderMonitorWorker::fileChangedSlot(const QString &path)
-{
-    auto f = Utils::FilePath::fromString(path);
-
-    if (f.exists()) {
-        if (!_watcher->watchesFile(path)) {
-            _watcher->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
-            emit filesChanged();
-        }
-    } else {
-        auto it = _files.find(Utils::FilePath::fromString(path));
-        if (it != _files.end()) {
-            _files.erase(it);
-            _watcher->removeFile(path);
-            emit filesChanged();
-        }
-    }
 }
 
 void AsyncFolderMonitorWorker::directoryChangedSlot(const QString &path)
@@ -114,10 +92,6 @@ void AsyncFolderMonitorWorker::traverseDir(const Utils::FilePath &dir)
         } else if (c.isFile()) {
             if (!matchesFilter(c.toString())) {
                 _files.insert(c);
-            }
-
-            if (!_watcher->watchesFile(c.toString())) {
-                _watcher->addFile(c.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
             }
         }
     }

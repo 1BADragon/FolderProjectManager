@@ -22,7 +22,7 @@ AsyncFolderMonitor::AsyncFolderMonitor(const Utils::FilePath &root, QObject *par
 
 AsyncFolderMonitor::~AsyncFolderMonitor()
 {
-    _thread.exit();
+    _thread.quit();
     _thread.wait();
 }
 
