@@ -152,6 +152,7 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
     : Project(Constants::FOLDERMIMETYPE, fileName)
 {
     setId(Constants::FOLDERPROJECT_ID);
+    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
 }
@@ -273,14 +274,17 @@ void FolderBuildSystem::refreshCppCodeModel()
     for (auto v : _settings[Settings::includes].toArray()) {        
         auto path = Utils::FilePath::fromString(v.toString());
         Utils::FilePath complete_path;
+        HeaderPathType t;
 
         if (path.isRelativePath()) {
             complete_path = base_dir.pathAppended(path.toString());
+            t = ProjectExplorer::HeaderPathType::User;
         } else {
             complete_path = path;
+            t = ProjectExplorer::HeaderPathType::System;
         }
 
-        headers.push_back({complete_path.toString(), ProjectExplorer::HeaderPathType::User});
+        headers.push_back({complete_path.toString(), t});
     }
     rpp.setHeaderPaths(headers);
 
