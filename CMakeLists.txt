@@ -37,7 +37,8 @@ add_qtc_plugin(FolderProjectManager
     src/folderprojectplugin.h src/folderprojectplugin.cpp
     src/folderprojectwizard.h src/folderprojectwizard.cpp
     src/folderprojectsettings.h src/folderprojectsettings.cpp
-    src/recursivefoldermonitor.h src/recursivefoldermonitor.cpp
+    src/asyncfoldermonitor.h src/asyncfoldermonitor.cpp
+    src/asyncfoldermonitorworker.h src/asyncfoldermonitorworker.cpp
 )
 
 set_property(TARGET FolderProjectManager

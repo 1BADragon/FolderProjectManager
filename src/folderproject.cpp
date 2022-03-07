@@ -3,7 +3,7 @@
 #include "folderbuildconfiguration.h"
 #include "foldermakestep.h"
 #include "folderprojectconstants.h"
-#include "recursivefoldermonitor.h"
+#include "asyncfoldermonitor.h"
 #include "folderprojectsettings.h"
 
 #include <coreplugin/documentmanager.h>
@@ -136,7 +136,7 @@ public:
     void refreshCppCodeModel();
 
 private:
-    RecursiveFolderMonitor _monitor;
+    AsyncFolderMonitor _monitor;
     FolderProjectSettings _settings;
 
     CppEditor::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
@@ -152,8 +152,11 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
     : Project(Constants::FOLDERMIMETYPE, fileName)
 {
     setId(Constants::FOLDERPROJECT_ID);
+    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
-    setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
+    setBuildSystemCreator([](Target *t) {
+        return new FolderBuildSystem(t);
+    });
 }
 
 FolderBuildSystem::FolderBuildSystem(Target *target)
@@ -178,17 +181,20 @@ FolderBuildSystem::FolderBuildSystem(Target *target)
         this->refresh(Everything);
     });
 
-    connect(&_monitor, &RecursiveFolderMonitor::filesChanged, this, [this]() {
+    connect(&_monitor, &AsyncFolderMonitor::filesChanged, this, [this]() {
+        qDebug() << "file Changed triggered";
         this->refresh(Everything);
     });
 
     connect(target, &Target::activeBuildConfigurationChanged, this, [this, target] {
-        if (target == project()->activeTarget())
+        if (target == project()->activeTarget()) {
             refresh(Everything);
+        }
     });
     connect(project(), &Project::activeTargetChanged, this, [this, target] {
-        if (target == project()->activeTarget())
+        if (target == project()->activeTarget()) {
             refresh(Everything);
+        }
     });
 }
 
@@ -232,7 +238,7 @@ void FolderBuildSystem::refresh(RefreshOptions options)
 
     auto root = std::make_unique<ProjectNode>(baseDir);
     std::vector<std::unique_ptr<FileNode>> fileNodes;
-    for (auto &f : _monitor.list()) {
+    for (auto &f : _monitor.fileList()) {
         FileType fileType = FileType::Source;
         if (f == projectFilePath()) {
             fileType = FileType::Project;
@@ -273,14 +279,17 @@ void FolderBuildSystem::refreshCppCodeModel()
     for (auto v : _settings[Settings::includes].toArray()) {        
         auto path = Utils::FilePath::fromString(v.toString());
         Utils::FilePath complete_path;
+        HeaderPathType t;
 
         if (path.isRelativePath()) {
             complete_path = base_dir.pathAppended(path.toString());
+            t = ProjectExplorer::HeaderPathType::User;
         } else {
             complete_path = path;
+            t = ProjectExplorer::HeaderPathType::System;
         }
 
-        headers.push_back({complete_path.toString(), ProjectExplorer::HeaderPathType::User});
+        headers.push_back({complete_path.toString(), t});
     }
     rpp.setHeaderPaths(headers);
 
@@ -296,20 +305,15 @@ void FolderBuildSystem::refreshCppCodeModel()
     }
     rpp.setFlagsForC({nullptr, cxxflags, projectDirectory().toString()});
 
-    static const auto sourceFilesToStringList = [](const QList<Utils::FilePath> &sourceFiles) {
-        return Utils::transform(sourceFiles, [](const Utils::FilePath &f) {
-            return f.toString();
-        });
-    };
     QStringList file_list;
-    for (auto &f : _monitor.list()) {
+    for (auto &f : _monitor.fileList()) {
         file_list.push_back(f.toString());
     }
     rpp.setFiles(file_list);
-    rpp.setPreCompiledHeaders(sourceFilesToStringList(
-                                  Utils::filtered(_monitor.list(), [](const Utils::FilePath &f) {
-        return f.toString().contains("pch");
-    })));
+
+    rpp.setPreCompiledHeaders(Utils::filtered(file_list, [](const QString &f) {
+        return f.contains("pch");
+    }));
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 }
