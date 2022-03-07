@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QQueue>
 #include <QRegExp>
+#include <QDebug>
 
 namespace FolderProjectManager {
 namespace Internal {
@@ -13,7 +14,6 @@ AsyncFolderMonitor::AsyncFolderMonitor(const Utils::FilePath &root, QObject *par
     _worker = new AsyncFolderMonitorWorker(root);
 
     _worker->moveToThread(&_thread);
-    connect(&_thread, &QThread::finished, _worker, &QObject::deleteLater);
     connect(_worker, &AsyncFolderMonitorWorker::filesChanged,
             this, &AsyncFolderMonitor::filesChangedSlot);
 
@@ -24,6 +24,8 @@ AsyncFolderMonitor::~AsyncFolderMonitor()
 {
     _thread.quit();
     _thread.wait();
+
+    delete _worker;
 }
 
 QList<Utils::FilePath> AsyncFolderMonitor::fileList() const

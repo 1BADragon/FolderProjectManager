@@ -17,7 +17,7 @@ AsyncFolderMonitorWorker::AsyncFolderMonitorWorker(const Utils::FilePath &root, 
 
 AsyncFolderMonitorWorker::~AsyncFolderMonitorWorker()
 {
-
+    delete _watcher;
 }
 
 QList<Utils::FilePath> AsyncFolderMonitorWorker::currentFileList()
