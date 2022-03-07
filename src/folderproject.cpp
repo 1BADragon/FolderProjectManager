@@ -154,7 +154,9 @@ FolderProject::FolderProject(const Utils::FilePath &fileName)
     setId(Constants::FOLDERPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
-    setBuildSystemCreator([](Target *t) { return new FolderBuildSystem(t); });
+    setBuildSystemCreator([](Target *t) {
+        return new FolderBuildSystem(t);
+    });
 }
 
 FolderBuildSystem::FolderBuildSystem(Target *target)
@@ -180,16 +182,19 @@ FolderBuildSystem::FolderBuildSystem(Target *target)
     });
 
     connect(&_monitor, &AsyncFolderMonitor::filesChanged, this, [this]() {
+        qDebug() << "file Changed triggered";
         this->refresh(Everything);
     });
 
     connect(target, &Target::activeBuildConfigurationChanged, this, [this, target] {
-        if (target == project()->activeTarget())
+        if (target == project()->activeTarget()) {
             refresh(Everything);
+        }
     });
     connect(project(), &Project::activeTargetChanged, this, [this, target] {
-        if (target == project()->activeTarget())
+        if (target == project()->activeTarget()) {
             refresh(Everything);
+        }
     });
 }
 

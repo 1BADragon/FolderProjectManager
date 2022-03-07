@@ -11,12 +11,8 @@ AsyncFolderMonitorWorker::AsyncFolderMonitorWorker(const Utils::FilePath &root, 
     _watcher = new Utils::FileSystemWatcher(this);
 
     _root = root;
-    _job_queue.emplace_back(_root);
-
     connect(_watcher, &Utils::FileSystemWatcher::directoryChanged,
             this, &AsyncFolderMonitorWorker::directoryChangedSlot);
-
-    processQueue();
 }
 
 AsyncFolderMonitorWorker::~AsyncFolderMonitorWorker()
