@@ -11,6 +11,7 @@ namespace Internal {
 AsyncFolderMonitor::AsyncFolderMonitor(const Utils::FilePath &root, QObject *parent)
     : QObject{parent}, _thread()
 {
+    _thread.setObjectName("AsyncWorkerThread");
     _worker = new AsyncFolderMonitorWorker(root);
 
     _worker->moveToThread(&_thread);
@@ -28,9 +29,15 @@ AsyncFolderMonitor::~AsyncFolderMonitor()
     delete _worker;
 }
 
-QList<Utils::FilePath> AsyncFolderMonitor::fileList() const
+const QList<Utils::FilePath>& AsyncFolderMonitor::fileList()
 {
-    return _worker->currentFileList();
+    auto list = _worker->currentFileList();
+
+    if (list) {
+        _last_list = std::move(*list);
+    }
+
+    return _last_list;
 }
 
 void AsyncFolderMonitor::setFilters(const QStringList &newFilters)

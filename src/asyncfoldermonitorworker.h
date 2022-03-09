@@ -2,6 +2,7 @@
 #define ASYNCFOLDERMONITORWORKER_H
 
 #include <memory>
+#include <optional>
 
 #include <QObject>
 #include <QString>
@@ -31,15 +32,18 @@ public:
     explicit AsyncFolderMonitorWorker(const Utils::FilePath &root, QObject *parent = nullptr);
     virtual ~AsyncFolderMonitorWorker();
 
-    QList<Utils::FilePath> currentFileList();
+    std::optional<QList<Utils::FilePath>> currentFileList();
     void setFilters(const QStringList &newFilters);
 
 signals:
     void filesChanged();
+    void updateFilters();
 
 private slots:
     void fileChangedSlot(const QString &path);
     void directoryChangedSlot(const QString &path);
+
+    void updateFiltersSlot();
 
 private:
     JobQueue _job_queue;

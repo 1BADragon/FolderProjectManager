@@ -13,6 +13,10 @@ AsyncFolderMonitorWorker::AsyncFolderMonitorWorker(const Utils::FilePath &root, 
     _root = root;
     connect(_watcher, &Utils::FileSystemWatcher::directoryChanged,
             this, &AsyncFolderMonitorWorker::directoryChangedSlot);
+
+    connect(this, &AsyncFolderMonitorWorker::updateFilters,
+            this, &AsyncFolderMonitorWorker::updateFiltersSlot,
+            Qt::QueuedConnection);
 }
 
 AsyncFolderMonitorWorker::~AsyncFolderMonitorWorker()
@@ -20,11 +24,15 @@ AsyncFolderMonitorWorker::~AsyncFolderMonitorWorker()
     delete _watcher;
 }
 
-QList<Utils::FilePath> AsyncFolderMonitorWorker::currentFileList()
+std::optional<QList<Utils::FilePath> > AsyncFolderMonitorWorker::currentFileList()
 {
-    QMutexLocker _(&_mut);
+    if (_mut.try_lock()) {
+        auto list = QList(_files.begin(), _files.end());
+        _mut.unlock();
+        return list;
+    }
 
-    return {_files.begin(), _files.end()};
+    return std::nullopt;
 }
 
 void AsyncFolderMonitorWorker::directoryChangedSlot(const QString &path)
@@ -42,19 +50,32 @@ void AsyncFolderMonitorWorker::directoryChangedSlot(const QString &path)
     emit filesChanged();
 }
 
+void AsyncFolderMonitorWorker::updateFiltersSlot()
+{
+    _job_queue.clear();
+    _job_queue.push_back(_root);
+
+    processQueue();
+}
+
 void AsyncFolderMonitorWorker::setFilters(const QStringList &newFilters)
 {
+    if (!_mut.try_lock()) {
+        return;
+    }
+
     _filters.clear();
 
-    for (auto filter : newFilters) {
+    for (const auto &filter : newFilters) {
         auto reges = QRegularExpression::wildcardToRegularExpression(filter,
                                                                      QRegularExpression::UnanchoredWildcardConversion);
 
         _filters.emplace_back(reges);
     }
-    _job_queue.clear();
-    _job_queue.emplace_back(_root);
-    processQueue();
+
+    _mut.unlock();
+
+    emit updateFilters();
 }
 
 void AsyncFolderMonitorWorker::processQueue()
@@ -75,6 +96,7 @@ void AsyncFolderMonitorWorker::traverseDir(const Utils::FilePath &dir)
     if (!dir.isDir()) {
         return;
     }
+    qDebug() << dir;
 
     QMutexLocker _(&_mut);
 

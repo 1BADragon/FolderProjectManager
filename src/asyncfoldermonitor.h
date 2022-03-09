@@ -22,7 +22,7 @@ public:
                                     QObject *parent = nullptr);
     virtual ~AsyncFolderMonitor();
 
-    QList<Utils::FilePath> fileList() const;
+    const QList<Utils::FilePath>& fileList();
     void setFilters(const QStringList &newFilters);
 
 signals:
@@ -35,6 +35,7 @@ private:
     QThread _thread;
     AsyncFolderMonitorWorker *_worker;
 
+    QList<Utils::FilePath> _last_list;
 
 };
 

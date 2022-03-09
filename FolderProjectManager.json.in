@@ -1,7 +1,7 @@
 {
     \"Name\" : \"FolderProjectManager\",
-    \"Version\" : \"0.1.0\",
-    \"CompatVersion\" : \"0.1.0\",
+    \"Version\" : \"0.3.0\",
+    \"CompatVersion\" : \"0.3.0\",
     \"Vendor\" : \"1BADragon\",
     \"Copyright\" : \"(C) 1BADragon\",
     \"License\" : [ ],
