@@ -25,7 +25,6 @@ add_qtc_plugin(FolderProjectManager
   SOURCES
     README.md
     BUILDING.md
-    folderprojectmanager.qbs
     folderprojectmanager.qrc
 
     # Actual Source Files...    

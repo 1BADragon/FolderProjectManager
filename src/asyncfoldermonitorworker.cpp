@@ -39,6 +39,10 @@ void AsyncFolderMonitorWorker::directoryChangedSlot(const QString &path)
 {
     auto f = Utils::FilePath::fromString(path);
 
+    QMutexLocker _(&_mut);
+
+    auto _old = _files;
+
     // scrub the list of childen of the dir
     purgeFolder(path);
 
@@ -47,11 +51,16 @@ void AsyncFolderMonitorWorker::directoryChangedSlot(const QString &path)
     }
 
     processQueue();
-    emit filesChanged();
+
+    if (_old != _files) {
+        emit filesChanged();
+    }
 }
 
 void AsyncFolderMonitorWorker::updateFiltersSlot()
 {
+    QMutexLocker _(&_mut);
+
     _job_queue.clear();
     _job_queue.push_back(_root);
 
@@ -96,11 +105,11 @@ void AsyncFolderMonitorWorker::traverseDir(const Utils::FilePath &dir)
     if (!dir.isDir()) {
         return;
     }
-    qDebug() << dir;
-
-    QMutexLocker _(&_mut);
 
     for (auto &c : dir.dirEntries(QStringList(), DIRFILTERS, QDir::Name)) {
+        if (matchesFilter(c.toString())) {
+            continue;
+        }
         if (c.isDir()) {
             _job_queue.emplace_back(c);
 
@@ -108,9 +117,7 @@ void AsyncFolderMonitorWorker::traverseDir(const Utils::FilePath &dir)
                 _watcher->addDirectory(c.toString(), Utils::FileSystemWatcher::WatchAllChanges);
             }
         } else if (c.isFile()) {
-            if (!matchesFilter(c.toString())) {
-                _files.insert(c);
-            }
+            _files.insert(c);
         }
     }
 }
